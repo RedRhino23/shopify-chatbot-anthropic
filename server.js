@@ -1,7 +1,6 @@
 // server.js - Shopify App (Express) with OAuth, App Proxy, Anthropic integration.
 // Demo store uses shops.json (replace with a DB in production).
 import express from 'express';
-import fetch from 'node-fetch';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
