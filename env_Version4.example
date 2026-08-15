@@ -1,0 +1,19 @@
+# Rename to .env locally and DO NOT commit .env to git.
+
+# Shopify App (from Shopify Partners dashboard)
+SHOPIFY_API_KEY=
+SHOPIFY_API_SECRET=
+HOST=https://your-service.onrender.com
+SHOPIFY_SCOPES=read_products,read_orders
+
+# Anthropic
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=claude-haiku-4-5
+ANTHROPIC_VERSION=2023-06-01
+
+# Optional (storefront/admin tokens)
+SHOPIFY_STORE_DOMAIN=
+SHOPIFY_STOREFRONT_TOKEN=
+SHOPIFY_ADMIN_ACCESS_TOKEN=
+
+PORT=3000
