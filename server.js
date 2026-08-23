@@ -187,10 +187,11 @@ app.post('/proxy/chat', async (req, res) => {
     }
   }
 
-  const system = { role: 'system', content: `You are a helpful shopping assistant for ${shop}. Keep answers concise.` };
+  // Claude's Messages API takes the system prompt as its own top-level field,
+  // not as a {role: 'system'} entry inside messages (that's the OpenAI convention).
+  const systemPrompt = `You are a helpful shopping assistant for ${shop}. Keep answers concise.`;
   const userContent = (orderSummary ? `OrderInfo: ${orderSummary}\n\n` : '') + message;
-  const user = { role: 'user', content: userContent };
-  const messages = [system, user];
+  const messages = [{ role: 'user', content: userContent }];
 
   try {
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -200,7 +201,7 @@ app.post('/proxy/chat', async (req, res) => {
         'anthropic-version': ANTHROPIC_VERSION,
         'content-type': 'application/json'
       },
-      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 700, messages })
+      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 700, system: systemPrompt, messages })
     });
     const jr = await anthropicRes.json();
     if (!anthropicRes.ok || jr?.type === 'error') {
