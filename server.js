@@ -33,12 +33,24 @@ function saveShops(data) { fs.writeFileSync(SHOPS_FILE, JSON.stringify(data, nul
 function getAccessTokenForShop(shop) { const s = loadShops(); return s[shop]?.accessToken; }
 function saveAccessToken(shop, token) { const s = loadShops(); s[shop] = { accessToken: token }; saveShops(s); }
 
-// Verify HMAC for OAuth callback / proxy signature
-function verifyHmac(query) {
-  const { hmac, signature, ...rest } = query; // ignore signature if present
+// Verify HMAC for the OAuth callback (query params joined with '&')
+function verifyOAuthHmac(query) {
+  const { hmac, ...rest } = query;
   const message = Object.keys(rest).sort().map(k => `${k}=${rest[k]}`).join('&');
   const digest = crypto.createHmac('sha256', SHOPIFY_API_SECRET).update(message).digest('hex');
-  return digest === (hmac || signature);
+  return digest === hmac;
+}
+
+// Verify the signature Shopify adds to App Proxy requests. This uses a
+// DIFFERENT format from OAuth's hmac - params are concatenated with NO
+// separator at all, not joined with '&'. Using the OAuth format here (an
+// easy mistake since both are just "an HMAC on the query string") would
+// make every real proxied request from the storefront fail verification.
+function verifyProxySignature(query) {
+  const { signature, ...rest } = query;
+  const message = Object.keys(rest).sort().map(k => `${k}=${rest[k]}`).join('');
+  const digest = crypto.createHmac('sha256', SHOPIFY_API_SECRET).update(message).digest('hex');
+  return digest === signature;
 }
 
 // OAuth install start
@@ -53,7 +65,7 @@ app.get('/auth', (req, res) => {
 // OAuth callback
 app.get('/auth/callback', async (req, res) => {
   try {
-    if (!verifyHmac(req.query)) return res.status(400).send('HMAC validation failed');
+    if (!verifyOAuthHmac(req.query)) return res.status(400).send('HMAC validation failed');
     const { shop, code } = req.query;
     const tokenRes = await fetch(`https://${shop}/admin/oauth/access_token`, {
       method: 'POST',
@@ -77,7 +89,7 @@ app.get('/auth/callback', async (req, res) => {
 
 // Serve proxied widget JS at /proxy/widget.js
 app.get('/proxy/widget.js', (req, res) => {
-  if (!verifyHmac(req.query)) return res.status(400).send('Invalid proxy signature');
+  if (!verifyProxySignature(req.query)) return res.status(400).send('Invalid proxy signature');
   const script = `
 (function(){
   if (window.ShopAIWidget) return;
@@ -136,7 +148,7 @@ app.get('/proxy/widget.js', (req, res) => {
 
 // Proxied chat endpoint (Shop domain posts via /apps/chatbot/chat)
 app.post('/proxy/chat', async (req, res) => {
-  if (!verifyHmac(req.query)) return res.status(400).json({ error: 'Invalid proxy signature' });
+  if (!verifyProxySignature(req.query)) return res.status(400).json({ error: 'Invalid proxy signature' });
   const shop = req.query.shop;
   if (!shop) return res.status(400).json({ error: 'Missing shop param' });
 
@@ -198,7 +210,7 @@ app.post('/proxy/chat', async (req, res) => {
 
 // Optional order lookup endpoint
 app.post('/proxy/order-lookup', (req, res) => {
-  if (!verifyHmac(req.query)) return res.status(400).json({ error: 'Invalid proxy signature' });
+  if (!verifyProxySignature(req.query)) return res.status(400).json({ error: 'Invalid proxy signature' });
   const shop = req.query.shop;
   const token = getAccessTokenForShop(shop);
   if (!token) return res.status(400).json({ error: 'App not installed or missing token' });
