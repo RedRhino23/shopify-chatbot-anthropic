@@ -27,13 +27,6 @@ const ANTHROPIC_VERSION = process.env.ANTHROPIC_VERSION || '2023-06-01';
 
 if (!ANTHROPIC_KEY) {
   console.warn('Warning: CLAUDE_KEY not set. Add it to your environment before deploying.');
-} else {
-  // TEMPORARY diagnostic - does not print the key itself, just its shape,
-  // to find where a bad character is coming from without exposing the secret.
-  const badCharIndexes = [...ANTHROPIC_KEY]
-    .map((c, i) => ({ i, code: c.charCodeAt(0) }))
-    .filter(x => x.code > 255);
-  console.log(`[diag] CLAUDE_KEY length=${ANTHROPIC_KEY.length} starts='${ANTHROPIC_KEY.slice(0,6)}' ends='${ANTHROPIC_KEY.slice(-6)}' badChars=${JSON.stringify(badCharIndexes)}`);
 }
 
 // Simple file-store for demo. Replace with a DB for production.
