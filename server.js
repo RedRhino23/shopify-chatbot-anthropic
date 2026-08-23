@@ -17,19 +17,23 @@ const HOST = process.env.HOST || '';
 const SCOPES = (process.env.SHOPIFY_SCOPES || 'read_products,read_orders').split(',');
 const SHOPS_FILE = path.resolve('./shops.json');
 
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+// Read from CLAUDE_KEY, not ANTHROPIC_API_KEY - something in Render's platform
+// (likely name-based secret detection) was silently replacing the actual value
+// of any variable named ANTHROPIC_API_KEY with masked placeholder characters
+// at injection time, even when set correctly via Render's own API.
+const ANTHROPIC_KEY = process.env.CLAUDE_KEY;
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 const ANTHROPIC_VERSION = process.env.ANTHROPIC_VERSION || '2023-06-01';
 
 if (!ANTHROPIC_KEY) {
-  console.warn('Warning: ANTHROPIC_API_KEY not set. Add it to your environment before deploying.');
+  console.warn('Warning: CLAUDE_KEY not set. Add it to your environment before deploying.');
 } else {
   // TEMPORARY diagnostic - does not print the key itself, just its shape,
   // to find where a bad character is coming from without exposing the secret.
   const badCharIndexes = [...ANTHROPIC_KEY]
     .map((c, i) => ({ i, code: c.charCodeAt(0) }))
     .filter(x => x.code > 255);
-  console.log(`[diag] ANTHROPIC_API_KEY length=${ANTHROPIC_KEY.length} starts='${ANTHROPIC_KEY.slice(0,6)}' ends='${ANTHROPIC_KEY.slice(-6)}' badChars=${JSON.stringify(badCharIndexes)}`);
+  console.log(`[diag] CLAUDE_KEY length=${ANTHROPIC_KEY.length} starts='${ANTHROPIC_KEY.slice(0,6)}' ends='${ANTHROPIC_KEY.slice(-6)}' badChars=${JSON.stringify(badCharIndexes)}`);
 }
 
 // Simple file-store for demo. Replace with a DB for production.
