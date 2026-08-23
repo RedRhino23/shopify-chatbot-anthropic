@@ -18,7 +18,7 @@ const SCOPES = (process.env.SHOPIFY_SCOPES || 'read_products,read_orders').split
 const SHOPS_FILE = path.resolve('./shops.json');
 
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5';
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
 const ANTHROPIC_VERSION = process.env.ANTHROPIC_VERSION || '2023-06-01';
 
 if (!ANTHROPIC_KEY) {
@@ -180,7 +180,15 @@ app.post('/proxy/chat', async (req, res) => {
       body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 700, messages })
     });
     const jr = await anthropicRes.json();
-    const reply = jr?.completion || jr?.output?.[0]?.content?.[0]?.text || jr?.message?.content?.[0]?.text || jr?.content?.[0]?.text || (jr?.choices?.[0]?.message?.content ?? null) || JSON.stringify(jr);
+    if (!anthropicRes.ok || jr?.type === 'error') {
+      console.error('Anthropic API error', jr);
+      return res.status(502).json({ error: 'Assistant is temporarily unavailable. Please try again shortly.' });
+    }
+    const reply = jr?.content?.[0]?.text;
+    if (!reply) {
+      console.error('Unexpected Anthropic response shape', jr);
+      return res.status(502).json({ error: 'Assistant is temporarily unavailable. Please try again shortly.' });
+    }
     res.json({ reply: String(reply) });
   } catch (err) {
     console.error(err);
