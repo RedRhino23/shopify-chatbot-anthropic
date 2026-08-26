@@ -197,7 +197,7 @@ app.post('/proxy/chat', async (req, res) => {
 
   // Claude's Messages API takes the system prompt as its own top-level field,
   // not as a {role: 'system'} entry inside messages (that's the OpenAI convention).
-  const systemPrompt = `You are a helpful shopping assistant for ${shop}. Keep answers concise.`;
+  const systemPrompt = `You are a helpful shopping assistant for MyNookie, an Australian adult wellness store at mynookie.com.au. Keep answers concise.`;
   const userContent = (orderSummary ? `OrderInfo: ${orderSummary}\n\n` : '') + message;
   const messages = [{ role: 'user', content: userContent }];
 
@@ -315,7 +315,7 @@ app.post('/chat', async (req, res) => {
     }
   }
 
-  const systemPrompt = `You are a helpful shopping assistant for ${shop}. Keep answers concise.`;
+  const systemPrompt = `You are a helpful shopping assistant for MyNookie, an Australian adult wellness store at mynookie.com.au. Keep answers concise.`;
   const userContent = (orderSummary ? `OrderInfo: ${orderSummary}\n\n` : '') + message;
   const messages = [{ role: 'user', content: userContent }];
 
