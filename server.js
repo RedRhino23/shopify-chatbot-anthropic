@@ -298,7 +298,16 @@ const STORE_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
 const SEARCH_STOPWORDS = new Set(['do','you','sell','have','has','is','are','the','a','an','i','want','looking','for','need','can','could','would','please','what','which','your','store','shop','me','tell','about','any','some','of','to','in','on','and','or']);
 function extractSearchTerms(message) {
   const words = message.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !SEARCH_STOPWORDS.has(w));
-  return [...new Set(words)].slice(0, 4);
+  const unique = [...new Set(words)].slice(0, 4);
+  // Shopify's search does literal substring matching, not stemming - "vibrators"
+  // won't match a title containing "Vibrator". Add the naive singular form too
+  // so plural customer phrasing still matches singular product titles.
+  const withSingulars = new Set();
+  unique.forEach(w => {
+    withSingulars.add(w);
+    if (w.endsWith('s') && w.length > 3) withSingulars.add(w.slice(0, -1));
+  });
+  return [...withSingulars];
 }
 
 async function searchProducts(terms) {
