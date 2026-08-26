@@ -11,6 +11,21 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Public, non-proxied endpoints for the widget (bypasses Shopify's App Proxy
+// entirely, which could not be gotten to register on the store's routing no
+// matter how the app's proxy settings were configured). Single-tenant: this
+// app only ever serves mynookie.myshopify.com, so the shop is hardcoded
+// rather than trusted from a request parameter.
+const STORE_DOMAIN = 'mynookie.myshopify.com';
+const ALLOWED_ORIGIN = 'https://mynookie.com.au';
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
 const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
 const HOST = process.env.HOST || '';
@@ -182,6 +197,124 @@ app.post('/proxy/chat', async (req, res) => {
 
   // Claude's Messages API takes the system prompt as its own top-level field,
   // not as a {role: 'system'} entry inside messages (that's the OpenAI convention).
+  const systemPrompt = `You are a helpful shopping assistant for ${shop}. Keep answers concise.`;
+  const userContent = (orderSummary ? `OrderInfo: ${orderSummary}\n\n` : '') + message;
+  const messages = [{ role: 'user', content: userContent }];
+
+  try {
+    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': ANTHROPIC_VERSION,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 700, system: systemPrompt, messages })
+    });
+    const jr = await anthropicRes.json();
+    if (!anthropicRes.ok || jr?.type === 'error') {
+      console.error('Anthropic API error', jr);
+      return res.status(502).json({ error: 'Assistant is temporarily unavailable. Please try again shortly.' });
+    }
+    const reply = jr?.content?.[0]?.text;
+    if (!reply) {
+      console.error('Unexpected Anthropic response shape', jr);
+      return res.status(502).json({ error: 'Assistant is temporarily unavailable. Please try again shortly.' });
+    }
+    res.json({ reply: String(reply) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'LLM error' });
+  }
+});
+
+// Public widget script - same UI as /proxy/widget.js, but calls this
+// server's own domain directly instead of a relative /apps/chatbot path
+app.get('/widget.js', (req, res) => {
+  const script = `
+(function(){
+  if (window.ShopAIWidget) return;
+  window.ShopAIWidget = true;
+  const basePath = '${HOST}';
+  const btn = document.createElement('button');
+  btn.innerText = 'Chat';
+  btn.style = 'position:fixed;right:20px;bottom:20px;z-index:9999;padding:12px 16px;border-radius:24px;background:#111;color:#fff;border:none;cursor:pointer';
+  document.body.appendChild(btn);
+  const panel = document.createElement('div');
+  panel.style = 'position:fixed;right:20px;bottom:70px;width:360px;height:520px;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);display:none;flex-direction:column;overflow:hidden;z-index:9999';
+  document.body.appendChild(panel);
+  panel.innerHTML = '<div style="background:#0a84ff;color:#fff;padding:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center"><div>ShopBot</div><button id="sa-close" style="background:transparent;border:none;color:#fff;font-size:16px;cursor:pointer">✕</button></div><div id="sa-messages" style="flex:1;padding:12px;overflow:auto;background:#f7f9fb"></div><div style="padding:8px;border-top:1px solid #eee;display:flex;"><input id="sa-input" placeholder="Ask about products, orders, shipping..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:6px;margin-right:8px" /><button id="sa-send" style="padding:8px 12px;border-radius:6px;background:#0a84ff;color:#fff;border:none">Send</button></div>';
+  btn.addEventListener('click', ()=> panel.style.display = panel.style.display === 'none' ? 'flex' : 'none');
+  panel.querySelector('#sa-close').addEventListener('click', ()=> panel.style.display = 'none');
+  const messagesEl = panel.querySelector('#sa-messages');
+  const inputEl = panel.querySelector('#sa-input');
+  const sendBtn = panel.querySelector('#sa-send');
+  function addMessage(text, from='bot'){ const wrapper=document.createElement('div'); wrapper.style='display:flex'; const el=document.createElement('div'); el.style= from==='bot' ? 'background:#fff;padding:10px;border-radius:10px;margin:6px 0;max-width:80%;box-shadow:0 1px 0 rgba(0,0,0,0.04)' : 'margin-left:auto;background:#0a84ff;color:#fff;padding:10px;border-radius:10px;margin:6px 0;max-width:80%'; el.innerText=text; wrapper.appendChild(el); messagesEl.appendChild(wrapper); messagesEl.scrollTop=messagesEl.scrollHeight; }
+  async function sendMessage(text, orderInfo) {
+    addMessage(text, 'user');
+    addMessage('Thinking...', 'bot');
+    try {
+      const payload = { message: text };
+      if (orderInfo) payload.orderLookup = orderInfo;
+      const res = await fetch(basePath + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      messagesEl.removeChild(messagesEl.lastChild);
+      if (data && data.reply) addMessage(data.reply, 'bot'); else addMessage('Sorry, something went wrong.', 'bot');
+    } catch (err) {
+      messagesEl.removeChild(messagesEl.lastChild);
+      addMessage('Network error. Try again later.', 'bot');
+      console.error(err);
+    }
+  }
+  sendBtn.addEventListener('click', async ()=> {
+    const t = inputEl.value.trim();
+    if (!t) return;
+    inputEl.value = '';
+    if (/\\border\\b|order status|where is my order|order #/i.test(t)) {
+      const orderNumber = prompt('Please enter your order number (e.g. #1001):');
+      const email = prompt('Please enter the email used for the order:');
+      if (!orderNumber || !email) { addMessage('Order lookup cancelled.', 'bot'); return; }
+      await sendMessage(t, { orderNumber, email });
+    } else {
+      await sendMessage(t);
+    }
+  });
+  inputEl.addEventListener('keydown', (e)=> { if (e.key==='Enter') sendBtn.click(); });
+  addMessage('Hi! I can help you find products and check order status. Ask me anything.', 'bot');
+})();
+`;
+  res.set('Content-Type', 'application/javascript');
+  res.send(script);
+});
+
+// Public chat endpoint - same logic as /proxy/chat, single-tenant (shop
+// hardcoded to STORE_DOMAIN), no Shopify signature since it's not proxied
+app.post('/chat', async (req, res) => {
+  const shop = STORE_DOMAIN;
+  const accessToken = getAccessTokenForShop(shop);
+  const { message, orderLookup } = req.body;
+  if (!message) return res.status(400).json({ error: 'message required' });
+
+  let orderSummary = '';
+  if (orderLookup && accessToken) {
+    const { orderNumber, email } = orderLookup;
+    try {
+      const adminRes = await fetch(`https://${shop}/admin/api/2024-10/orders.json?name=${encodeURIComponent(orderNumber)}`, {
+        headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' }
+      });
+      const jr = await adminRes.json();
+      const order = jr.orders?.find(o => o.email?.toLowerCase() === (email || '').toLowerCase());
+      if (order) {
+        orderSummary = `Order ${order.name}: status=${order.financial_status}/${order.fulfillment_status}, total=${order.total_price} ${order.currency}, items=${order.line_items.map(li=>li.title+' x'+li.quantity).join('; ')}.`;
+      } else {
+        orderSummary = 'Order not found or email does not match.';
+      }
+    } catch (err) {
+      console.error('Order lookup failed', err);
+      orderSummary = 'Order lookup failed.';
+    }
+  }
+
   const systemPrompt = `You are a helpful shopping assistant for ${shop}. Keep answers concise.`;
   const userContent = (orderSummary ? `OrderInfo: ${orderSummary}\n\n` : '') + message;
   const messages = [{ role: 'user', content: userContent }];
