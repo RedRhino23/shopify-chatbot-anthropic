@@ -287,20 +287,54 @@ app.get('/widget.js', (req, res) => {
   res.send(script);
 });
 
+// Stable Admin API token (from the store's existing MyNookie Store Sync app)
+// used for both product search and order lookups below. NOT the token
+// saved via this app's own OAuth install in shops.json - that file lives on
+// Render's ephemeral filesystem and gets reset to its git-committed empty
+// state on every deploy, so relying on it would make order lookup silently
+// stop working after any code push.
+const STORE_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
+
+const SEARCH_STOPWORDS = new Set(['do','you','sell','have','has','is','are','the','a','an','i','want','looking','for','need','can','could','would','please','what','which','your','store','shop','me','tell','about','any','some','of','to','in','on','and','or']);
+function extractSearchTerms(message) {
+  const words = message.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !SEARCH_STOPWORDS.has(w));
+  return [...new Set(words)].slice(0, 4);
+}
+
+async function searchProducts(terms) {
+  if (!STORE_ADMIN_TOKEN || terms.length === 0) return [];
+  const searchQuery = 'status:active AND (' + terms.map(t => `title:*${t}*`).join(' OR ') + ')';
+  const gql = {
+    query: `query($q: String!) { products(first: 5, query: $q) { nodes { title handle priceRangeV2 { minVariantPrice { amount currencyCode } } } } }`,
+    variables: { q: searchQuery }
+  };
+  try {
+    const resp = await fetch(`https://${STORE_DOMAIN}/admin/api/2026-01/graphql.json`, {
+      method: 'POST',
+      headers: { 'X-Shopify-Access-Token': STORE_ADMIN_TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify(gql)
+    });
+    const jr = await resp.json();
+    return jr?.data?.products?.nodes || [];
+  } catch (err) {
+    console.error('Product search failed', err);
+    return [];
+  }
+}
+
 // Public chat endpoint - same logic as /proxy/chat, single-tenant (shop
 // hardcoded to STORE_DOMAIN), no Shopify signature since it's not proxied
 app.post('/chat', async (req, res) => {
   const shop = STORE_DOMAIN;
-  const accessToken = getAccessTokenForShop(shop);
   const { message, orderLookup } = req.body;
   if (!message) return res.status(400).json({ error: 'message required' });
 
   let orderSummary = '';
-  if (orderLookup && accessToken) {
+  if (orderLookup && STORE_ADMIN_TOKEN) {
     const { orderNumber, email } = orderLookup;
     try {
-      const adminRes = await fetch(`https://${shop}/admin/api/2024-10/orders.json?name=${encodeURIComponent(orderNumber)}`, {
-        headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' }
+      const adminRes = await fetch(`https://${shop}/admin/api/2026-01/orders.json?name=${encodeURIComponent(orderNumber)}`, {
+        headers: { 'X-Shopify-Access-Token': STORE_ADMIN_TOKEN, 'Content-Type': 'application/json' }
       });
       const jr = await adminRes.json();
       const order = jr.orders?.find(o => o.email?.toLowerCase() === (email || '').toLowerCase());
@@ -315,8 +349,20 @@ app.post('/chat', async (req, res) => {
     }
   }
 
-  const systemPrompt = `You are a helpful shopping assistant for MyNookie, an Australian adult wellness store at mynookie.com.au. Keep answers concise.`;
-  const userContent = (orderSummary ? `OrderInfo: ${orderSummary}\n\n` : '') + message;
+  let productContext = '';
+  if (!orderLookup) {
+    const terms = extractSearchTerms(message);
+    const matches = await searchProducts(terms);
+    productContext = matches.length > 0
+      ? 'Matching products currently in the catalog:\n' + matches.map(p =>
+          `- ${p.title} - $${p.priceRangeV2.minVariantPrice.amount} ${p.priceRangeV2.minVariantPrice.currencyCode} (mynookie.com.au/products/${p.handle})`
+        ).join('\n')
+      : 'A catalog search for this query returned no matching products.';
+  }
+
+  const systemPrompt = `You are a helpful shopping assistant for MyNookie, an Australian adult wellness store at mynookie.com.au. Keep answers concise. When product search results are provided below, use only those real products and prices - never invent products, prices, or stock availability. If no matches were found, say so honestly and suggest browsing the site or refining the search.`;
+  const contextBlock = [orderSummary && `OrderInfo: ${orderSummary}`, productContext].filter(Boolean).join('\n\n');
+  const userContent = (contextBlock ? `${contextBlock}\n\n` : '') + message;
   const messages = [{ role: 'user', content: userContent }];
 
   try {
