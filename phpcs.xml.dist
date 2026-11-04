@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<ruleset name="Drafting Central Portal"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+
+	<description>PHP 8.1 compatibility and WordPress rules for drafting-central-portal. Live server is PHP 8.1.34.</description>
+
+	<!-- Install and run steps: see phpcs-README.md next to this file. -->
+
+	<!-- What to scan. -->
+	<file>wp-content/plugins/drafting-central-portal</file>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/dc-private/*</exclude-pattern>
+	<exclude-pattern>*.min.js</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg name="parallel" value="8"/>
+	<arg value="sp"/><!-- show sniff codes, show progress -->
+	<arg name="basepath" value="."/>
+
+	<!-- Live PHP is 8.1.34. "8.1" (no trailing dash) flags anything not valid on 8.1 exactly,
+	     so 8.2+ features (readonly classes, DNF types, true/null/false standalone types,
+	     #[\Override], json_validate(), etc.) are caught before they reach the live site. -->
+	<config name="testVersion" value="8.1"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- WordPress rules. Core = style, Extra = security, escaping, nonces, SQL, i18n, etc. -->
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Docs"/>
+
+	<!-- Oldest WP we support. Flags deprecated functions. Set to the real minimum. -->
+	<config name="minimum_wp_version" value="6.5"/>
+	<rule ref="WordPress.WP.DeprecatedFunctions">
+		<properties>
+			<property name="minimum_wp_version" value="6.5"/>
+		</properties>
+	</rule>
+
+	<!-- Text domain and prefixes. Change if the plugin uses something else. -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="drafting-central-portal"/>
+			</property>
+		</properties>
+	</rule>
+	<!-- WPCS rejects prefixes under 3 letters, so the plugin's dc_ / DC_ cannot pass this sniff.
+	     Off until I've seen the code. Then either set the real prefixes here or leave it off. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<severity>0</severity>
+	</rule>
+
+	<!-- Security sniffs: keep these at error level. Warnings get ignored. -->
+	<rule ref="WordPress.Security.EscapeOutput"><type>error</type></rule>
+	<rule ref="WordPress.Security.NonceVerification"><type>error</type></rule>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput"><type>error</type></rule>
+	<rule ref="WordPress.DB.PreparedSQL"><type>error</type></rule>
+	<rule ref="WordPress.DB.PreparedSQLPlaceholders"><type>error</type></rule>
+
+	<!-- Calls that matter for the auto-draft work. Review each hit by hand. -->
+	<rule ref="WordPress.WP.AlternativeFunctions"><!-- curl_*, file_get_contents(url), file_put_contents, etc. -->
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions"><type>error</type></rule>
+	<rule ref="WordPress.PHP.DevelopmentFunctions"><type>error</type></rule>
+	<rule ref="WordPress.WP.CapitalPDangit"/>
+
+	<!-- Noise we don't want. Keep this list short, and say why for each. -->
+	<!-- Yoda conditions are style only, not a bug risk. -->
+	<rule ref="WordPress.PHP.YodaConditions">
+		<severity>0</severity>
+	</rule>
+	<!-- Plugin uses short array syntax. -->
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax">
+		<severity>0</severity>
+	</rule>
+	<!-- File names: allow class-*.php and plain names. -->
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="strict_class_file_names" value="false"/>
+		</properties>
+	</rule>
+</ruleset>
