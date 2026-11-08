@@ -1,0 +1,28 @@
+# Email index (read-only)
+
+Builds a CSV of the drafting emails so requests can be paired with the replies and the drawings.
+Runs on Ross's PC. Nothing is changed, moved, deleted or sent. Attachments are not saved. No email bodies or addresses are written (domains only).
+
+## Setup (once)
+Needs desktop Outlook (classic) open and signed in. The "new Outlook" does not allow this kind of access: if Outlook looks like a web page in an app, switch back (toggle in the top right) or tell the reviewer.
+
+    mkdir C:\email-index
+    cd C:\email-index
+    C:\ocs-test\venv\Scripts\python.exe -m pip install pywin32
+
+Copy `email_index.py` into `C:\email-index` (Raw, Copy raw file, then `notepad C:\email-index\email_index.py`).
+
+## Run
+    C:\ocs-test\venv\Scripts\python.exe .\email_index.py index --since 2024-01-01
+    C:\ocs-test\venv\Scripts\python.exe .\email_index.py pair
+
+- `out\index.csv`: one row per email
+- `out\jobs.csv`: one row per drawing number, with request, reply, NAS files and a `clean_pair` flag
+- `out\nas_files.csv`: cached list of NAS file names (delete it to rescan)
+
+Send the two CSVs to the reviewer (Ross agreed). They contain subjects and file names, so do not post them anywhere public.
+
+## If something goes wrong
+- `Inbox\AFJ` not found: check the folder name; use `--inbox-sub "AFJ"` or another folder (repeat the option for more).
+- Few drawing numbers found: the pattern assumes numbers like `D17428M-1`. Send the reviewer five other examples and change `--pattern`.
+- NAS folders skipped: connect to `\\WHY4RSNAS` first (no mapped drives in the script, UNC paths only).
