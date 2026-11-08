@@ -27,6 +27,7 @@ from pathlib import Path
 DEFAULT_PATTERN = r"\bD\d{4,6}[A-Z]{0,2}-\d{1,3}\b"   # e.g. D17428M-1. Change with --pattern if other numbers exist.
 NAS_ROOTS = [r"\\WHY4RSNAS\QuickDraw\AFJ", r"\\WHY4RSNAS\QuickDraw\AF"]
 DRAWING_EXT = {".dwg", ".dxf"}
+IGNORED_ATT = re.compile(r"^(image\d{3}\.(png|jpe?g|gif)|outlook-[\w.-]+\.(png|jpe?g|gif)|~WRD\d+\.jpg)$", re.I)   # signature images
 IMAGE_EXT = {".pdf", ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".heic"}
 INDEX_COLS = ["direction", "folder", "entry_id_tail", "conversation_id_tail", "when", "subject", "domains",
               "drawing_numbers", "attachment_names", "attachment_kinds", "attachment_bytes"]
@@ -183,21 +184,33 @@ def cmd_pair(a):
         for m in re.findall(a.pattern, stem, re.I):
             by_no[m.upper()].append(p)
 
-    emails = defaultdict(list)
+    # Link emails by Outlook conversation: the client's request often has no drawing number,
+    # but Ross's reply (same conversation) does. A conversation takes all numbers found in any of its emails.
+    conv_rows = defaultdict(list)
     for r in rows:
-        for n in filter(None, r["drawing_numbers"].split(";")):
-            emails[n].append(r)
+        conv_rows[r["conversation_id_tail"] or ("solo-" + r["entry_id_tail"])].append(r)
+    conv_numbers = {c: sorted({n for r in rs for n in r["drawing_numbers"].split(";") if n}) for c, rs in conv_rows.items()}
+    convs_for = defaultdict(list)
+    for c, nums in conv_numbers.items():
+        for n in nums:
+            convs_for[n].append(c)
+
+    def kinds(r):
+        names = [x for x in r["attachment_names"].split(";") if x and not IGNORED_ATT.match(x)]
+        return {os.path.splitext(x)[1].lower() for x in names}
 
     jobs = []
-    for no, rs in sorted(emails.items()):
-        rs.sort(key=lambda r: r["when"])
-        reqs = [r for r in rs if r["direction"] == "received" and set(r["attachment_kinds"].split(";")) & IMAGE_EXT]
-        reps = [r for r in rs if r["direction"] == "sent" and set(r["attachment_kinds"].split(";")) & DRAWING_EXT]
+    for no, cs in sorted(convs_for.items()):
+        rs = sorted((r for c in cs for r in conv_rows[c]), key=lambda r: r["when"])
+        reqs = [r for r in rs if r["direction"] == "received" and kinds(r) & IMAGE_EXT]
+        reps = [r for r in rs if r["direction"] == "sent" and kinds(r) & (IMAGE_EXT | DRAWING_EXT | {".zip"})]
         req = reqs[0] if reqs else None
-        rep = next((r for r in reps if req and r["when"] >= req["when"]), reps[0] if reps else None)
+        later = [r for r in reps if req and r["when"] >= req["when"]]
+        rep = later[-1] if later else (reps[-1] if reps else None)       # the last reply is the one issued
         notes = []
         if not req: notes.append("no request with scan/PDF attached")
-        if not rep: notes.append("no reply with DWG/DXF attached")
+        if not rep: notes.append("no reply with a PDF/DWG attached")
+        if len(cs) > 1: notes.append(f"{len(cs)} conversations")
         if len(reqs) > 1: notes.append(f"{len(reqs)} requests")
         if len(reps) > 1: notes.append(f"{len(reps)} replies (multi-round?)")
         files = sorted(by_no.get(no, []))
@@ -209,7 +222,7 @@ def cmd_pair(a):
             "reply_when": rep["when"] if rep else "", "reply_subject": rep["subject"] if rep else "",
             "reply_attachments": rep["attachment_names"] if rep else "",
             "nas_files": " | ".join(files[:8]),
-            "clean_pair": "yes" if req and rep and len(reqs) == 1 and len(reps) == 1 and files else "no",
+            "clean_pair": "yes" if req and rep and len(cs) == 1 and files else "no",
             "notes": "; ".join(notes),
         })
     with open(out / "jobs.csv", "w", newline="", encoding="utf-8-sig") as fh:
@@ -229,8 +242,9 @@ def cmd_pair(a):
     print(f"NAS: {len(nas)} drawing/PDF files listed; {len(by_no)} drawing numbers matched a file name")
     print(f"Emails: {sum(1 for r in rows if r['direction']=='received')} received, "
           f"{sum(1 for r in rows if r['direction']=='sent')} sent; "
-          f"received with scan/PDF attached: {sum(1 for r in rows if r['direction']=='received' and set(r['attachment_kinds'].split(';')) & IMAGE_EXT)}; "
-          f"sent with DWG/DXF attached: {sum(1 for r in rows if r['direction']=='sent' and set(r['attachment_kinds'].split(';')) & DRAWING_EXT)}")
+          f"received with scan/PDF attached (signature images ignored): {sum(1 for r in rows if r['direction']=='received' and kinds(r) & IMAGE_EXT)}; "
+          f"sent with PDF/DWG/DXF/ZIP attached: {sum(1 for r in rows if r['direction']=='sent' and kinds(r) & (IMAGE_EXT | DRAWING_EXT | {'.zip'}))}; "
+          f"conversations: {len(conv_rows)}")
 
 
 def main():
