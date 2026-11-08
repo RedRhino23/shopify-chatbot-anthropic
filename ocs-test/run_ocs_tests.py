@@ -32,9 +32,10 @@ def make_drawing(path):
         msp.add_line(a, b)
     msp.add_line((300, 100), (300, 400))           # interior line: stays
     msp.add_line((1500, 100), (1500, 300))         # orphan: deliberate
-    # ezdxf's default dimension style is sized for tiny drawings (text 2.5 units); scale it up for 1200 units
+    # ezdxf's default dimension style is sized for tiny drawings (text 0.25 units) and has DIMLFAC=100 (metres to cm);
+    # scale it for 1200 units and reset DIMLFAC so the text reads 1200
     msp.add_linear_dim(base=(0, -100), p1=(0, 0), p2=(1200, 0),
-                       override={"dimtxt": 30, "dimasz": 30, "dimexe": 15, "dimexo": 10, "dimdec": 0}).render()
+                       override={"dimtxt": 30, "dimasz": 30, "dimexe": 15, "dimexo": 10, "dimdec": 0, "dimlfac": 1}).render()
     h = msp.add_hatch(color=2)
     h.set_pattern_fill("ANSI31", scale=10)
     h.paths.add_polyline_path([(600, 100), (1100, 100), (1100, 400), (600, 400)], is_closed=True)
