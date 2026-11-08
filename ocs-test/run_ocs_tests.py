@@ -77,6 +77,8 @@ def main():
     ap.add_argument("--ctb", help="path to monochrome.ctb (optional)")
     a = ap.parse_args()
     exe = Path(a.exe).resolve()
+    if a.ctb and not Path(a.ctb).is_file():
+        sys.exit(f"--ctb file not found: {a.ctb}\nUse the real path to Ross's monochrome.ctb (not the example path).")
     OUT.mkdir(exist_ok=True)
     src = (OUT / "test.dxf").resolve()
     make_drawing(src)
@@ -127,7 +129,7 @@ def main():
         edited = (OUT / "edited.dxf").resolve()
         log("serve save_verified", reply=s.send({"protocol": 1, "op": "save_verified", "request_id": "sv1",
                                                   "document_id": doc_id, "path": str(edited),
-                                                  "target_format": "dxf", "target_version": "2000"}))
+                                                  "target_format": "dxf", "target_version": "2000", "overwrite": True}))
     finally:
         s.close()
 
