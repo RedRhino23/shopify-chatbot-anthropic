@@ -68,13 +68,45 @@ def walk_mail(folder, since):
             continue
 
 
+def find_stores(ns, needle):
+    """Match a mailbox by name. Skips any store Outlook cannot open (one bad data file must not stop the run)."""
+    found, names = [], []
+    try:
+        count = ns.Stores.Count
+    except Exception:
+        count = 0
+    for i in range(1, count + 1):
+        try:
+            st = ns.Stores.Item(i)
+            name = st.DisplayName
+        except Exception:
+            names.append(f"(store {i}: not available)")
+            continue
+        names.append(name)
+        if needle in name.lower():
+            found.append(st)
+    if not found:                       # fall back to the top-level folder list
+        try:
+            for i in range(1, ns.Folders.Count + 1):
+                try:
+                    fo = ns.Folders.Item(i)
+                    if needle in fo.Name.lower():
+                        found.append(fo.Store)
+                        names.append(fo.Name)
+                except Exception:
+                    continue
+        except Exception:
+            pass
+    return found, names
+
+
 def cmd_index(a):
     import win32com.client                # imported here so the file still loads on other systems
     ns = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    stores = [st for st in ns.Stores if a.mailbox.lower() in st.DisplayName.lower()]
+    stores, names = find_stores(ns, a.mailbox.lower())
+    print("Mailboxes Outlook lists:", names)
     if len(stores) != 1:
-        names = [st.DisplayName for st in ns.Stores]
-        sys.exit(f"Expected exactly one mailbox matching '{a.mailbox}', found {len(stores)}. Mailboxes here: {names}")
+        sys.exit(f"Expected exactly one mailbox matching '{a.mailbox}', found {len(stores)}. Use more of the name from the list above.")
     print("Reading mailbox:", stores[0].DisplayName)
     inbox, sent = stores[0].GetDefaultFolder(6), stores[0].GetDefaultFolder(5)
     targets = []
