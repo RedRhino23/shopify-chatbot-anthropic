@@ -217,6 +217,20 @@ def cmd_pair(a):
         w.writeheader(); w.writerows(jobs)
     clean = sum(1 for j in jobs if j["clean_pair"] == "yes")
     print(f"{len(jobs)} drawing numbers, {clean} clean pairs. Wrote {out / 'jobs.csv'}")
+    # Why jobs are not clean (a job can have several reasons)
+    from collections import Counter
+    why = Counter()
+    for j in jobs:
+        for n in filter(None, (x.strip() for x in j["notes"].split(";"))):
+            why[re.sub(r"^\d+ ", "N ", n)] += 1
+    print("Reasons jobs are not clean:")
+    for k, v in why.most_common():
+        print(f"  {v:4d}  {k}")
+    print(f"NAS: {len(nas)} drawing/PDF files listed; {len(by_no)} drawing numbers matched a file name")
+    print(f"Emails: {sum(1 for r in rows if r['direction']=='received')} received, "
+          f"{sum(1 for r in rows if r['direction']=='sent')} sent; "
+          f"received with scan/PDF attached: {sum(1 for r in rows if r['direction']=='received' and set(r['attachment_kinds'].split(';')) & IMAGE_EXT)}; "
+          f"sent with DWG/DXF attached: {sum(1 for r in rows if r['direction']=='sent' and set(r['attachment_kinds'].split(';')) & DRAWING_EXT)}")
 
 
 def main():
