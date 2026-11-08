@@ -13,7 +13,7 @@ Step 2  python email_index.py pair
         Groups by drawing number, finds request/reply, looks for files on the NAS.
         Writes out\\jobs.csv and out\\nas_files.csv (cached list of NAS file names)
 
-Options: --inbox-sub AFJ (repeat for more folders)  --pattern REGEX  --out DIR
+Options: --mailbox ross@mydraftingcentral  --inbox-sub AFJ (repeat for more folders)  --pattern REGEX  --out DIR
 Dates in the CSV are YYYY-MM-DD HH:MM (sortable).
 """
 import argparse
@@ -71,7 +71,12 @@ def walk_mail(folder, since):
 def cmd_index(a):
     import win32com.client                # imported here so the file still loads on other systems
     ns = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    inbox, sent = ns.GetDefaultFolder(6), ns.GetDefaultFolder(5)
+    stores = [st for st in ns.Stores if a.mailbox.lower() in st.DisplayName.lower()]
+    if len(stores) != 1:
+        names = [st.DisplayName for st in ns.Stores]
+        sys.exit(f"Expected exactly one mailbox matching '{a.mailbox}', found {len(stores)}. Mailboxes here: {names}")
+    print("Reading mailbox:", stores[0].DisplayName)
+    inbox, sent = stores[0].GetDefaultFolder(6), stores[0].GetDefaultFolder(5)
     targets = []
     for sub in a.inbox_sub:
         f = inbox
@@ -191,6 +196,7 @@ def main():
         p.add_argument("--pattern", default=DEFAULT_PATTERN)
         if name == "index":
             p.add_argument("--since", default="2024-01-01")
+            p.add_argument("--mailbox", default="ross@mydraftingcentral", help="part of the mailbox name in Outlook")
             p.add_argument("--inbox-sub", action="append", default=None, help="Inbox subfolder, repeatable (default AFJ)")
         p.set_defaults(fn=fn)
     a = ap.parse_args()

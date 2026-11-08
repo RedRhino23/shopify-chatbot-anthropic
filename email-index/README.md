@@ -13,7 +13,7 @@ Needs desktop Outlook (classic) open and signed in. The "new Outlook" does not a
 Copy `email_index.py` into `C:\email-index` (Raw, Copy raw file, then `notepad C:\email-index\email_index.py`).
 
 ## Run
-    C:\ocs-test\venv\Scripts\python.exe .\email_index.py index --since 2024-01-01
+    C:\ocs-test\venv\Scripts\python.exe .\email_index.py index --since 2024-01-01 --mailbox ross@mydraftingcentral
     C:\ocs-test\venv\Scripts\python.exe .\email_index.py pair
 
 - `out\index.csv`: one row per email
@@ -23,6 +23,7 @@ Copy `email_index.py` into `C:\email-index` (Raw, Copy raw file, then `notepad C
 Send the two CSVs to the reviewer (Ross agreed). They contain subjects and file names, so do not post them anywhere public.
 
 ## If something goes wrong
+- Several mailboxes in Outlook: the script reads only the one whose name contains `--mailbox` (default `ross@mydraftingcentral`). If it lists the mailboxes and stops, use more of the name.
 - `Inbox\AFJ` not found: check the folder name; use `--inbox-sub "AFJ"` or another folder (repeat the option for more).
 - Few drawing numbers found: the pattern assumes numbers like `D17428M-1`. Send the reviewer five other examples and change `--pattern`.
 - NAS folders skipped: connect to `\\WHY4RSNAS` first (no mapped drives in the script, UNC paths only).
