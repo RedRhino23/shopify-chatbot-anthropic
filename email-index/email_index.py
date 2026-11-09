@@ -7,7 +7,8 @@ The CSV keeps: dates, subject, sender/recipient DOMAINS only (no addresses),
 drawing numbers found, and attachment names/types/sizes. No email bodies.
 (The body is read in memory only, to look for drawing numbers, then dropped.)
 
-Step 1  python email_index.py index --since 2024-01-01
+Step 0  python email_index.py list --mailbox "archive 2"   (shows the folders in a mailbox)
+Step 1  python email_index.py index --since 2024-01-01 --mailbox ross@mydraftingcentral --mailbox "archive 2" --mailbox Outlook
         Reads Inbox\\AFJ and Sent Items. Writes out\\index.csv
 Step 2  python email_index.py pair
         Groups by drawing number, finds request/reply, looks for files on the NAS.
@@ -24,7 +25,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-VERSION = "email_index 0.5 (one row per issued drawing file; writes issues.csv)"
+VERSION = "email_index 0.6 (several mailboxes incl. archives; list command; de-duplicates copies)"
 DEFAULT_PATTERN = r"\bD\d{4,6}[A-Z]{0,2}-\d{1,3}\b"   # e.g. D17428M-1. Change with --pattern if other numbers exist.
 NAS_ROOTS = [r"\\WHY4RSNAS\QuickDraw\AFJ", r"\\WHY4RSNAS\QuickDraw\AF"]
 DRAWING_EXT = {".dwg", ".dxf"}
@@ -55,14 +56,14 @@ def smtp(mail_item_or_recipient):
         return ""
 
 
-def walk_mail(folder, since):
+def walk_mail(folder, since, direction):
     items = folder.Items
-    items.Sort("[ReceivedTime]" if folder.Name != "Sent Items" else "[SentOn]", False)
+    items.Sort("[ReceivedTime]" if direction == "received" else "[SentOn]", False)
     for it in items:
         try:
             if it.Class != 43:          # MailItem only
                 continue
-            when = it.SentOn if folder.Name == "Sent Items" else it.ReceivedTime
+            when = it.SentOn if direction == "sent" else it.ReceivedTime
             if str(when)[:10] < since:
                 continue
             yield it, when
@@ -102,54 +103,88 @@ def find_stores(ns, needle):
     return found, names
 
 
+def walk_folders(folder, depth=0, max_depth=5):
+    """Yield (name, folder) for every folder below `folder` (depth-limited; unreadable folders skipped)."""
+    try:
+        subs = [folder.Folders.Item(i) for i in range(1, folder.Folders.Count + 1)]
+    except Exception:
+        return
+    for f in subs:
+        try:
+            yield f.Name, f
+        except Exception:
+            continue
+        if depth < max_depth:
+            yield from walk_folders(f, depth + 1, max_depth)
+
+
+def cmd_list(a):
+    import win32com.client
+    ns = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
+    for needle in a.mailbox:
+        stores, names = find_stores(ns, needle.lower())
+        print("Mailboxes Outlook lists:", names)
+        for st in stores:
+            print("== ", st.DisplayName)
+            for name, f in walk_folders(st.GetRootFolder()):
+                try:
+                    print(f"   {f.FolderPath.split(chr(92), 3)[-1]}  ({f.Items.Count} items)")
+                except Exception:
+                    print("   ", name, "(unreadable)")
+
+
 def cmd_index(a):
     import win32com.client                # imported here so the file still loads on other systems
     ns = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
-    stores, names = find_stores(ns, a.mailbox.lower())
-    print("Mailboxes Outlook lists:", names)
-    if len(stores) != 1:
-        sys.exit(f"Expected exactly one mailbox matching '{a.mailbox}', found {len(stores)}. Use more of the name from the list above.")
-    print("Reading mailbox:", stores[0].DisplayName)
-    inbox, sent = stores[0].GetDefaultFolder(6), stores[0].GetDefaultFolder(5)
-    targets = []
-    for sub in a.inbox_sub:
-        f = inbox
-        for part in sub.split("\\"):
-            f = f.Folders[part]
-        targets.append(("received", f))
-    targets.append(("sent", sent))
-
+    recv_names = {x.lower() for x in a.inbox_sub}
+    sent_names = {"sent items", "sent"}
     rx = re.compile(a.pattern, re.I)
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     rows = []
-    for direction, folder in targets:
-        n = 0
-        for it, when in walk_mail(folder, a.since):
-            try:
-                atts = [(at.FileName, at.Size) for at in it.Attachments]
-                kinds = sorted({os.path.splitext(n_)[1].lower() for n_, _ in atts})
-                if direction == "received":
-                    doms = {domain_of(smtp(it))}
-                else:
-                    doms = {domain_of(smtp(r)) for r in it.Recipients}
-                text = " ".join([it.Subject or "", " ".join(n_ for n_, _ in atts), (it.Body or "")[:20000]])
-                nums = sorted({m.upper() for m in rx.findall(text)})
-                rows.append({
-                    "direction": direction, "folder": folder.FolderPath.split("\\", 3)[-1],
-                    "entry_id_tail": it.EntryID[-12:], "conversation_id_tail": (it.ConversationID or "")[-12:],
-                    "when": str(when)[:16], "subject": (it.Subject or "").replace("\n", " ").strip(),
-                    "domains": ";".join(sorted(d for d in doms if d)),
-                    "drawing_numbers": ";".join(nums),
-                    "attachment_names": ";".join(n_ for n_, _ in atts),
-                    "attachment_kinds": ";".join(kinds),
-                    "attachment_bytes": sum(s for _, s in atts),
-                })
-                n += 1
-                if n % 200 == 0:
-                    print(f"{direction}: {n} emails...", flush=True)
-            except Exception as ex:
-                print("skipped one email:", type(ex).__name__, file=sys.stderr)
-        print(f"{direction} {folder.Name}: {n} emails")
+    for needle in a.mailbox:
+        stores, names = find_stores(ns, needle.lower())
+        print("Mailboxes Outlook lists:", names)
+        if len(stores) != 1:
+            sys.exit(f"Expected exactly one mailbox matching '{needle}', found {len(stores)}. Use more of the name from the list above.")
+        store = stores[0]
+        print("Reading mailbox:", store.DisplayName)
+        targets = []
+        for name, f in walk_folders(store.GetRootFolder()):
+            low = name.lower()
+            if low in recv_names:
+                targets.append(("received", f))
+            elif low in sent_names:
+                targets.append(("sent", f))
+        if not targets:
+            print("  no matching folders found here (looked for", sorted(recv_names | sent_names), ")")
+        for direction, folder in targets:
+            n = 0
+            for it, when in walk_mail(folder, a.since, direction):
+                try:
+                    atts = [(at.FileName, at.Size) for at in it.Attachments]
+                    kinds = sorted({os.path.splitext(n_)[1].lower() for n_, _ in atts})
+                    if direction == "received":
+                        doms = {domain_of(smtp(it))}
+                    else:
+                        doms = {domain_of(smtp(r)) for r in it.Recipients}
+                    text = " ".join([it.Subject or "", " ".join(n_ for n_, _ in atts), (it.Body or "")[:20000]])
+                    nums = sorted({m.upper() for m in rx.findall(text)})
+                    rows.append({
+                        "direction": direction, "folder": store.DisplayName.split("@")[0] + ":" + folder.FolderPath.split("\\", 3)[-1],
+                        "entry_id_tail": it.EntryID[-12:], "conversation_id_tail": (it.ConversationID or "")[-12:],
+                        "when": str(when)[:16], "subject": (it.Subject or "").replace("\n", " ").strip(),
+                        "domains": ";".join(sorted(d for d in doms if d)),
+                        "drawing_numbers": ";".join(nums),
+                        "attachment_names": ";".join(n_ for n_, _ in atts),
+                        "attachment_kinds": ";".join(kinds),
+                        "attachment_bytes": sum(s for _, s in atts),
+                    })
+                    n += 1
+                    if n % 200 == 0:
+                        print(f"  {direction}: {n} emails...", flush=True)
+                except Exception as ex:
+                    print("  skipped one email:", type(ex).__name__, file=sys.stderr)
+            print(f"  {direction} {folder.Name}: {n} emails")
     with open(out / "index.csv", "w", newline="", encoding="utf-8-sig") as fh:
         w = csv.DictWriter(fh, fieldnames=INDEX_COLS); w.writeheader(); w.writerows(rows)
     print("wrote", out / "index.csv", len(rows), "rows")
@@ -177,7 +212,12 @@ def scan_nas(out):
 def cmd_pair(a):
     out = Path(a.out)
     with open(out / "index.csv", newline="", encoding="utf-8-sig") as fh:
-        rows = list(csv.DictReader(fh))
+        rows, seen_rows = [], set()
+        for r in csv.DictReader(fh):          # the same email can sit in the live mailbox and an archive
+            k = (r["direction"], r["when"], r["subject"], r["attachment_names"], r["attachment_bytes"])
+            if k not in seen_rows:
+                seen_rows.add(k)
+                rows.append(r)
     nas = scan_nas(out)
     by_no = defaultdict(list)
     for p in nas:
@@ -260,19 +300,23 @@ def cmd_pair(a):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name, fn in (("index", cmd_index), ("pair", cmd_pair)):
+    for name, fn in (("index", cmd_index), ("list", cmd_list), ("pair", cmd_pair)):
         p = sub.add_parser(name)
         p.add_argument("--out", default="out")
         p.add_argument("--pattern", default=DEFAULT_PATTERN)
+        if name == "list":
+            p.add_argument("--mailbox", action="append", default=None)
         if name == "index":
             p.add_argument("--since", default="2024-01-01")
-            p.add_argument("--mailbox", default="ross@mydraftingcentral", help="part of the mailbox name in Outlook")
-            p.add_argument("--inbox-sub", action="append", default=None, help="Inbox subfolder, repeatable (default AFJ)")
+            p.add_argument("--mailbox", action="append", default=None, help="part of a mailbox name in Outlook; repeat for archives")
+            p.add_argument("--inbox-sub", action="append", default=None, help="folder name to read as received mail, repeatable (default AFJ and AF)")
         p.set_defaults(fn=fn)
     a = ap.parse_args()
     print(VERSION)
     if getattr(a, "inbox_sub", "x") is None:
-        a.inbox_sub = ["AFJ"]
+        a.inbox_sub = ["AFJ", "AF"]
+    if hasattr(a, "mailbox") and a.mailbox is None:
+        a.mailbox = ["ross@mydraftingcentral"]
     a.fn(a)
 
 
