@@ -17,7 +17,7 @@ Copy `email_index.py` into `C:\email-index` (Raw, Copy raw file, then `notepad C
     C:\ocs-test\venv\Scripts\python.exe .\email_index.py pair
 
 - `out\index.csv`: one row per email
-- `out\jobs.csv`: one row per drawing number, with request, reply, NAS files and a `clean_pair` flag
+- `out\issues.csv`: one row per drawing number, with request, reply, NAS files and a `clean` flag
 - `out\nas_files.csv`: cached list of NAS file names (delete it to rescan)
 
 Send the two CSVs to the reviewer (Ross agreed). They contain subjects and file names, so do not post them anywhere public.

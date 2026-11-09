@@ -11,7 +11,7 @@ Step 1  python email_index.py index --since 2024-01-01
         Reads Inbox\\AFJ and Sent Items. Writes out\\index.csv
 Step 2  python email_index.py pair
         Groups by drawing number, finds request/reply, looks for files on the NAS.
-        Writes out\\jobs.csv and out\\nas_files.csv (cached list of NAS file names)
+        Writes out\\issues.csv and out\\nas_files.csv (cached list of NAS file names)
 
 Options: --mailbox ross@mydraftingcentral  --inbox-sub AFJ (repeat for more folders)  --pattern REGEX  --out DIR
 Dates in the CSV are YYYY-MM-DD HH:MM (sortable).
@@ -24,7 +24,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-VERSION = "email_index 0.4 (pairs by conversation, accepts PDF replies)"
+VERSION = "email_index 0.5 (one row per issued drawing file; writes issues.csv)"
 DEFAULT_PATTERN = r"\bD\d{4,6}[A-Z]{0,2}-\d{1,3}\b"   # e.g. D17428M-1. Change with --pattern if other numbers exist.
 NAS_ROOTS = [r"\\WHY4RSNAS\QuickDraw\AFJ", r"\\WHY4RSNAS\QuickDraw\AF"]
 DRAWING_EXT = {".dwg", ".dxf"}
@@ -185,66 +185,75 @@ def cmd_pair(a):
         for m in re.findall(a.pattern, stem, re.I):
             by_no[m.upper()].append(p)
 
-    # Link emails by Outlook conversation: the client's request often has no drawing number,
-    # but Ross's reply (same conversation) does. A conversation takes all numbers found in any of its emails.
+    # One row per ISSUED DRAWING FILE (an attachment in a sent email), linked to the latest earlier request
+    # scan in the same Outlook conversation. Requests and replies come in sets (one scan, many drawings),
+    # so the drawing number is read from the reply's attachment NAME, not from anywhere in the conversation.
+    from datetime import datetime
     conv_rows = defaultdict(list)
     for r in rows:
         conv_rows[r["conversation_id_tail"] or ("solo-" + r["entry_id_tail"])].append(r)
-    conv_numbers = {c: sorted({n for r in rs for n in r["drawing_numbers"].split(";") if n}) for c, rs in conv_rows.items()}
-    convs_for = defaultdict(list)
-    for c, nums in conv_numbers.items():
-        for n in nums:
-            convs_for[n].append(c)
 
-    def kinds(r):
-        names = [x for x in r["attachment_names"].split(";") if x and not IGNORED_ATT.match(x)]
-        return {os.path.splitext(x)[1].lower() for x in names}
+    def keep(r):
+        return [x for x in r["attachment_names"].split(";") if x and not IGNORED_ATT.match(x)]
 
-    jobs = []
-    for no, cs in sorted(convs_for.items()):
-        rs = sorted((r for c in cs for r in conv_rows[c]), key=lambda r: r["when"])
-        reqs = [r for r in rs if r["direction"] == "received" and kinds(r) & IMAGE_EXT]
-        reps = [r for r in rs if r["direction"] == "sent" and kinds(r) & (IMAGE_EXT | DRAWING_EXT | {".zip"})]
-        req = reqs[0] if reqs else None
-        later = [r for r in reps if req and r["when"] >= req["when"]]
-        rep = later[-1] if later else (reps[-1] if reps else None)       # the last reply is the one issued
-        notes = []
-        if not req: notes.append("no request with scan/PDF attached")
-        if not rep: notes.append("no reply with a PDF/DWG attached")
-        if len(cs) > 1: notes.append(f"{len(cs)} conversations")
-        if len(reqs) > 1: notes.append(f"{len(reqs)} requests")
-        if len(reps) > 1: notes.append(f"{len(reps)} replies (multi-round?)")
-        files = sorted(by_no.get(no, []))
-        if not files: notes.append("no file found on NAS")
-        jobs.append({
-            "drawing_no": no,
-            "request_when": req["when"] if req else "", "request_subject": req["subject"] if req else "",
-            "request_attachments": req["attachment_names"] if req else "",
-            "reply_when": rep["when"] if rep else "", "reply_subject": rep["subject"] if rep else "",
-            "reply_attachments": rep["attachment_names"] if rep else "",
-            "nas_files": " | ".join(files[:8]),
-            "clean_pair": "yes" if req and rep and len(cs) == 1 and files else "no",
-            "notes": "; ".join(notes),
-        })
-    with open(out / "jobs.csv", "w", newline="", encoding="utf-8-sig") as fh:
-        w = csv.DictWriter(fh, fieldnames=list(jobs[0].keys()) if jobs else ["drawing_no"])
-        w.writeheader(); w.writerows(jobs)
-    clean = sum(1 for j in jobs if j["clean_pair"] == "yes")
-    print(f"{len(jobs)} drawing numbers, {clean} clean pairs. Wrote {out / 'jobs.csv'}")
-    # Why jobs are not clean (a job can have several reasons)
+    def has(r, exts):
+        return any(os.path.splitext(x)[1].lower() in exts for x in keep(r))
+
+    def days(t0, t1):
+        f = "%Y-%m-%d %H:%M"
+        try:
+            return round((datetime.strptime(t1, f) - datetime.strptime(t0, f)).total_seconds() / 86400, 1)
+        except Exception:
+            return ""
+
+    events, seen = {}, {}
+    for c, rs in conv_rows.items():
+        rs = sorted(rs, key=lambda r: r["when"])
+        for r in rs:
+            if r["direction"] != "sent":
+                continue
+            for name in keep(r):
+                if os.path.splitext(name)[1].lower() not in IMAGE_EXT | DRAWING_EXT | {".zip"}:
+                    continue
+                for no in sorted({m.upper() for m in re.findall(a.pattern, name, re.I)}):
+                    key = (no, name.lower())
+                    if key in events:
+                        events[key]["times_sent"] += 1
+                        continue
+                    reqs = [x for x in rs if x["direction"] == "received" and has(x, IMAGE_EXT) and x["when"] <= r["when"]]
+                    req = reqs[-1] if reqs else None
+                    files = sorted(by_no.get(no, []))
+                    m = re.search(r"rev\s*([A-Z0-9][A-Z0-9 \-]*?)(?:\.\w+)?$", name, re.I)
+                    notes = []
+                    if not req: notes.append("no request scan before this reply")
+                    if not files: notes.append("no file found on NAS (typo in the name?)")
+                    gap = days(req["when"], r["when"]) if req else ""
+                    if gap != "" and gap > 60: notes.append("request is over 60 days earlier")
+                    events[key] = {
+                        "drawing_no": no, "issued_file": name, "issued_rev": m.group(1).strip() if m else "",
+                        "issued_when": r["when"], "issued_subject": r["subject"],
+                        "drawings_in_that_email": len({n for x in keep(r) for n in re.findall(a.pattern, x, re.I)}),
+                        "request_when": req["when"] if req else "", "request_subject": req["subject"] if req else "",
+                        "request_attachments": ";".join(keep(req)) if req else "", "days_request_to_reply": gap,
+                        "conversation": c, "times_sent": 1,
+                        "nas_files": " | ".join(files[:10]),
+                        "clean": "yes" if req and files and not (gap != "" and gap > 60) else "no",
+                        "notes": "; ".join(notes),
+                    }
+    ev = sorted(events.values(), key=lambda e: (e["drawing_no"], e["issued_when"]))
+    with open(out / "issues.csv", "w", newline="", encoding="utf-8-sig") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(ev[0].keys()) if ev else ["drawing_no"])
+        w.writeheader(); w.writerows(ev)
+    clean = sum(1 for e in ev if e["clean"] == "yes")
+    nums = {e["drawing_no"] for e in ev}
+    print(f"{len(ev)} issued drawing files ({len(nums)} drawing numbers); {clean} clean (request scan found + files on NAS). Wrote {out / 'issues.csv'}")
     from collections import Counter
-    why = Counter()
-    for j in jobs:
-        for n in filter(None, (x.strip() for x in j["notes"].split(";"))):
-            why[re.sub(r"^\d+ ", "N ", n)] += 1
-    print("Reasons jobs are not clean:")
+    why = Counter(n for e in ev for n in filter(None, (x.strip() for x in e["notes"].split(";"))))
+    print("Reasons not clean:")
     for k, v in why.most_common():
         print(f"  {v:4d}  {k}")
     print(f"NAS: {len(nas)} drawing/PDF files listed; {len(by_no)} drawing numbers matched a file name")
-    print(f"Emails: {sum(1 for r in rows if r['direction']=='received')} received, "
-          f"{sum(1 for r in rows if r['direction']=='sent')} sent; "
-          f"received with scan/PDF attached (signature images ignored): {sum(1 for r in rows if r['direction']=='received' and kinds(r) & IMAGE_EXT)}; "
-          f"sent with PDF/DWG/DXF/ZIP attached: {sum(1 for r in rows if r['direction']=='sent' and kinds(r) & (IMAGE_EXT | DRAWING_EXT | {'.zip'}))}; "
+    print(f"Emails: {sum(1 for r in rows if r['direction']=='received')} received, {sum(1 for r in rows if r['direction']=='sent')} sent; "
           f"conversations: {len(conv_rows)}")
 
 
