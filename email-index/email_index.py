@@ -24,6 +24,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+VERSION = "email_index 0.4 (pairs by conversation, accepts PDF replies)"
 DEFAULT_PATTERN = r"\bD\d{4,6}[A-Z]{0,2}-\d{1,3}\b"   # e.g. D17428M-1. Change with --pattern if other numbers exist.
 NAS_ROOTS = [r"\\WHY4RSNAS\QuickDraw\AFJ", r"\\WHY4RSNAS\QuickDraw\AF"]
 DRAWING_EXT = {".dwg", ".dxf"}
@@ -260,6 +261,7 @@ def main():
             p.add_argument("--inbox-sub", action="append", default=None, help="Inbox subfolder, repeatable (default AFJ)")
         p.set_defaults(fn=fn)
     a = ap.parse_args()
+    print(VERSION)
     if getattr(a, "inbox_sub", "x") is None:
         a.inbox_sub = ["AFJ"]
     a.fn(a)
