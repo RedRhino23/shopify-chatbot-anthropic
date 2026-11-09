@@ -82,9 +82,21 @@ Status 08/11/2026. Rules R-001 to R-008 come from Ross's reviews of the Mount Is
 - What must never change
 - Typical client changes and where they land on the drawing
 
-## 6. Clients (Ross to fill in; no client names in this repo)
-- Use a code or job prefix, not the name.
-- Marking habits, naming habits, anything they always ask for.
+## 6. End clients and senders (Ross to fill in)
+Conventions belong to the END CLIENT (the owner whose title block and revision system the drawing uses), not to whoever emails the job. One sender can send jobs for several end clients, so keep the two apart.
+- Use codes or short names only, no contact names or personal details.
+
+### End client: BHP (Olympic Dam), from one job on 09/11/2026. Ross to confirm and correct.
+- **Revision system:** Rev A = ISSUED FOR APPROVAL; Rev 0-0 = ISSUED FOR CONSTRUCTION. Numeric style (0-0, 1-0).
+- **Dates:** DD.MM.YY (for example 05.11.26).
+- **Drawn-by initials in the revision row:** "RED".
+- **Client drawing number:** BHP's own number (form ODE4371-2-0404) is added to the title block as a reference.
+- **Title block revision field** changes with the revision row (A to 0-0).
+- Not yet known: other revision steps after 0-0, checker/approver fields, what the "populate" note on the revision table row means.
+- **How their markups arrive:** PDF with digital annotations (replacement text boxes, strike-outs, sticky notes). Ignore the "AutoCAD SHX Text" annotations that AutoCAD's PDF export adds.
+
+### Senders (who emails us)
+- AFJ: sends jobs for end clients including BHP. Note here anything specific to how AFJ sends requests (file names, sets of drawings per scan), separate from the end client's rules.
 
 ## 7. When to stop and ask Ross
 - List the situations where the agent must not guess (unclear mark, missing value, conflicting values, a rule that doesn't fit).
