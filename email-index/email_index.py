@@ -228,7 +228,7 @@ def cmd_pair(a):
                     if not req: notes.append("no request scan before this reply")
                     if not files: notes.append("no file found on NAS (typo in the name?)")
                     gap = days(req["when"], r["when"]) if req else ""
-                    if gap != "" and gap > 60: notes.append("request is over 60 days earlier")
+                    if gap != "" and gap > 120: notes.append("request is over 120 days earlier (check it is the right scan)")
                     events[key] = {
                         "drawing_no": no, "issued_file": name, "issued_rev": m.group(1).strip() if m else "",
                         "issued_when": r["when"], "issued_subject": r["subject"],
@@ -237,7 +237,7 @@ def cmd_pair(a):
                         "request_attachments": ";".join(keep(req)) if req else "", "days_request_to_reply": gap,
                         "conversation": c, "times_sent": 1,
                         "nas_files": " | ".join(files[:10]),
-                        "clean": "yes" if req and files and not (gap != "" and gap > 60) else "no",
+                        "clean": "yes" if req and files else "no",
                         "notes": "; ".join(notes),
                     }
     ev = sorted(events.values(), key=lambda e: (e["drawing_no"], e["issued_when"]))
