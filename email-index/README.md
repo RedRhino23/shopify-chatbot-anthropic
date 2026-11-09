@@ -27,3 +27,9 @@ Send the two CSVs to the reviewer (Ross agreed). They contain subjects and file 
 - `Inbox\AFJ` not found: check the folder name; use `--inbox-sub "AFJ"` or another folder (repeat the option for more).
 - Few drawing numbers found: the pattern assumes numbers like `D17428M-1`. Send the reviewer five other examples and change `--pattern`.
 - NAS folders skipped: connect to `\\WHY4RSNAS` first (no mapped drives in the script, UNC paths only).
+
+## Step 3: build test cases from the issued drawings (local, no upload)
+    C:\ocs-test\venv\Scripts\python.exe -m pip install pypdf
+    C:\ocs-test\venv\Scripts\python.exe .\build_cases.py
+
+Reads the earlier and the issued revision PDFs from the NAS (read-only) and writes what changed to `cases\dev\` (about 70%) and `cases\heldout\` (about 30%, chosen by a fixed rule on the drawing number). Keep `heldout` unseen until the agent is working. The case files hold drawing text, so keep them on the NAS and out of any repo. It sends nothing anywhere.
