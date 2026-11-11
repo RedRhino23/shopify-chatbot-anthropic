@@ -1,0 +1,9 @@
+{
+  "company": "CLIENT NAME",
+  "title_lines": ["SITE / PLANT", "AREA", "SYSTEM", "METALLIC BELLOWS EXPANSION JOINT DN200 CLASS 150", "GENERAL ARRANGEMENT"],
+  "drawing_no": "DXXXXXM-1",
+  "doc_no": "CLIENT-DOC-No",
+  "rev": "A",
+  "date": "DD.MM.YY",
+  "notes": ["DESIGN PRESSURE: ____ kPa    TEMPERATURE: ____ °C", "AXIAL MOVEMENT: ____ mm    LATERAL: ____ mm", "100% VISUAL INSPECTION", "100% DIMENSIONAL"]
+}

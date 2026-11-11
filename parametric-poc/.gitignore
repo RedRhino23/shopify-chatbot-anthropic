@@ -4,3 +4,6 @@ rubber_joint_*
 COMPARE_JOINT.md
 out_*
 __pycache__/
+bellows_job_*.json
+bellows_DN200*
+COMPARE_BELLOWS.md

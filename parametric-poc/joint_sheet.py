@@ -40,7 +40,7 @@ def section_faces(parts):
     return out
 
 
-def generic_title_block(sh, job, sheet_label="GENERAL ARRANGEMENT"):
+def generic_title_block(sh, job, src="joint_model.py"):
     x0, y0, x1, y1 = 215.0, 10.0, 410.0, 50.0
     sh.rect(x0, y0, x1, y1, "TABLE")
     xm = 335.0
@@ -53,7 +53,7 @@ def generic_title_block(sh, job, sheet_label="GENERAL ARRANGEMENT"):
     sh.text(f"DATE  {job['date']}", (xm + 3, 27), 2.2, "MLEFT")
     sh.text("SCALE  N.T.S", (xm + 3, 21), 2.2, "MLEFT")
     sh.text(job["doc_no"], (x1 - 3, 54), 3.0, "RIGHT")
-    sh.text("PROOF OF CONCEPT: GENERATED FROM THE 3D MODEL (joint_model.py)", (x0 + 3, 13), 1.6, "MLEFT")
+    sh.text(f"PROOF OF CONCEPT: GENERATED FROM THE 3D MODEL ({src})", (x0 + 3, 13), 1.6, "MLEFT")
 
 
 def build_joint_sheet(p, parts, job, out):
