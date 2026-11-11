@@ -11,3 +11,5 @@ fabric_job_*.json
 !fabric_job.example.json
 fabric_joint_*
 COMPARE_FABRIC.md
+tied_joint_*
+COMPARE_TIED.md

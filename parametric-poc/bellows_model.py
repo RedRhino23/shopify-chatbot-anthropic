@@ -22,7 +22,8 @@ class BParams:
     height: float = 40.0         # convolution height w (neutral root to neutral crown)
     plies: int = 2
     ply_t: float = 0.8           # thickness per ply (plies are modelled as one solid of plies x ply_t)
-    tangent: float = 25.0        # end tangent length each end
+    tangent: float = 25.0        # end tangent length (start end)
+    tangent_b: float = None      # end tangent at the far end (default: same as tangent)
     flange_od: float = 343.0     # B16.5 150 NPS 8
     pcd: float = 298.5
     holes: int = 8
@@ -38,7 +39,9 @@ class BParams:
     @property
     def T(self): return self.plies * self.ply_t
     @property
-    def length(self): return self.n_conv * self.pitch + 2 * self.tangent        # bellows element, tangent to tangent
+    def tb(self): return self.tangent if self.tangent_b is None else self.tangent_b
+    @property
+    def length(self): return self.n_conv * self.pitch + self.tangent + self.tb        # bellows element, tangent to tangent
     @property
     def face_to_face(self): return self.length + 2 * self.flange_t
 
@@ -71,7 +74,7 @@ def neutral_path(p: BParams):
     c = (Rr + rm, z + rm)
     el.append(("A", (Rr + rm, z), (c[0] - rm * math.cos(math.pi / 4), c[1] - rm * math.sin(math.pi / 4)), (Rr, z + rm), c, True))
     z += rm
-    el.append(("L", (Rr, z), (Rr, z + tl)))
+    el.append(("L", (Rr, z), (Rr, z + p.tb)))
     return el
 
 
