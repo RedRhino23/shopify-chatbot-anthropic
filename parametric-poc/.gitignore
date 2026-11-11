@@ -1,0 +1,6 @@
+joint_job_*.json
+!joint_job.example.json
+rubber_joint_*
+COMPARE_JOINT.md
+out_*
+__pycache__/

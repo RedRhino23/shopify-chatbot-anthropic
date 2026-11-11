@@ -1,0 +1,10 @@
+{
+  "company": "CLIENT NAME",
+  "title_lines": ["SITE / PLANT", "AREA", "SYSTEM", "EXPANSION JOINT EQUIPMENT No", "GENERAL ARRANGEMENT"],
+  "drawing_no": "DXXXXXM-1",
+  "doc_no": "CLIENT-DOC-No",
+  "rev": "0-0",
+  "date": "DD.MM.YY",
+  "notes": ["CONTRACT No: ______", "EQUIPMENT No: ______", "MAX WORKING TEMP: __ °C", "LATERAL DISPLACEMENT CAPABILITY: __mm",
+            "AXIAL DISPLACEMENT CAPABILITY: __mm", "100% VISUAL INSPECTION", "100% DIMENSIONAL"]
+}
