@@ -28,3 +28,22 @@ Later
 - Import the register into the drawing register (portal) so a job picks its template by client.
 - Fill `as1100_deviations` from the AS 1100 profile once AS 1100.101 is on file.
 - Title block positions for files that have no ATTDEF fields (plain text only).
+
+## Building templates from the drawing collection (template_miner.py)
+
+Templates are not drawn by hand. They are mined from the whole drawing collection, which the drawing database can list, then approved by a person.
+
+    python template_miner.py DXF_FOLDER --out MINED --manifest drawings.csv [--register ROOT --rev-owner client --projection first]
+
+- Input: DXF files (convert DWG first: AutoCAD, Open CAD Studio `--export`, or ODA File Converter) and optionally a CSV export from the drawing database with `path` (or `file`), `client`, `drawing_no`, `rev`. Without the CSV, the client is the parent folder name.
+- It finds each sheet border, measures everything from the border corner (so drawings placed anywhere line up), and groups a client's drawings that share a sheet, border size and title block line work. Stray drawing lines in the title block area do not split a group.
+- Per group of `--min-count` or more drawings, it keeps only what at least `--threshold` (90%) of them share: border, title block lines, fixed labels. Text in the same place whose value changes (drawing no., revision, title) becomes a field (ATTDEF).
+- Writes `MINED/clusters.json` (every group, its example drawings, its fields, what was skipped) and `MINED/drafts/<cluster>.dxf`. With `--register` each draft is added to the register as DRAFT. Nothing is approved by the miner; a person approves, which locks it.
+- Groups smaller than `--min-count` get no draft; they are listed for a person to look at. Drawings with no sheet-sized border are skipped and listed.
+
+Limits (so far)
+- Tested only on synthetic drawings, not on the real collection.
+- Arcs and circles in a title block (logos) are listed as shared but not written into drafts yet.
+- Blocks (INSERT) are matched but their contents are not copied into drafts; client logos and symbols usually arrive that way.
+- Border detection needs a closed rectangle on the sheet size. Borders drawn as four separate lines, or inside a block, are skipped for now.
+- Mined output holds client data: keep MINED on the NAS, not in git.
