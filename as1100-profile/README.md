@@ -6,8 +6,15 @@ Status values: UNVERIFIED (observed in a master, no clause yet), CONFIRMED (clau
 
 Part 1 (done): `profile_extract.py master.dxf [more.dxf] --out profile_draft.json` records layers, linetypes, text styles and heights, dimension styles, extents and title block text, and lists each as an UNVERIFIED item with an empty `clause`.
 
+Standard on file, as received 13/11/2026 (checked, nothing copied into this repo)
+- AS 1100.201-1992 full (79 pages) and its Amdt 1-1994: SUPPLIED.
+- AS 1100.101-1992 Amdt 1-1994: SUPPLIED, but it is the 5-page amendment only. The body of AS 1100.101 is NOT supplied.
+- HB 47: not supplied.
+- AS 1100.201 defers to AS 1100.101 for line types (cl 2.2.1), line thickness (2.2.2), scales (2.4), symbols (2.3), and the units and methods of dimensioning and tolerancing (2.1.1). So the step 0 template (linetypes, line weights, dimension style, scales, sheet and title block, lettering) cannot be confirmed until the 101 body is supplied.
+- Licence: the PDFs are Ross Edgar's 1-user personal licence ("copying, storage, distribution or use on network prohibited"). They stay out of git, out of the repo and off the QD worker. The profile holds clause numbers and our own parameter values only, no standard text.
+
 Needed from Ross
-- The AS 1100 / HB 47 file(s) as PDF (not on this machine; path on the NAS is enough if the QD worker can read it).
+- AS 1100.101-1992 (full body, not just the amendment). HB 47 if you hold it.
 - Two or three real masters as DXF: a clean A3 master and a dimension-heavy drawing. Keep them out of git.
 
 Next (after the standard is supplied)
