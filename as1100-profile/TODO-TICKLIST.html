@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AS 1100 and Pipeline: To Do</title>
+<style>
+:root{--bg:#f6f5f2;--surface:#fff;--fg:#1d2326;--muted:#5b666b;--line:#d9dcd9;--accent:#1f5f73;--accent-fg:#fff;--focus:#b4580f;--ross:#8a4b08;--claude:#1f5f73;--done:#8a949a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14191b;--surface:#1c2326;--fg:#e8ecea;--muted:#9aa6a9;--line:#324046;--accent:#6bb6cc;--accent-fg:#0f1a1e;--focus:#f0a35a;--ross:#f0a35a;--claude:#6bb6cc;--done:#6f7a7f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14191b;--surface:#1c2326;--fg:#e8ecea;--muted:#9aa6a9;--line:#324046;--accent:#6bb6cc;--accent-fg:#0f1a1e;--focus:#f0a35a;--ross:#f0a35a;--claude:#6bb6cc;--done:#6f7a7f;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:24px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px;min-width:0}
+h1{font-size:1.5rem;margin:0;line-height:1.2}
+.lede{color:var(--muted);margin:6px 0 0}
+fieldset{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:12px 16px;margin:0;min-width:0}
+legend{font-weight:600;padding:0 6px}
+.task{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:8px 0;border-top:1px solid var(--line)}
+.task:first-of-type{border-top:0}
+.task input[type=checkbox]{margin-top:5px;width:18px;height:18px;accent-color:var(--accent)}
+.task label{cursor:pointer}
+.who{font-size:.78rem;font-weight:700;letter-spacing:.03em;margin-right:6px}
+.who.Ross{color:var(--ross)}.who.Claude{color:var(--claude)}
+.task.done label{color:var(--done);text-decoration:line-through}
+.task input[type=text]{grid-column:2;font:inherit;font-size:.9rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:5px 8px;width:100%;box-sizing:border-box}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button,select{font:inherit;border-radius:4px;padding:8px 14px}
+button{font-weight:600;cursor:pointer;border:0;background:var(--accent);color:var(--accent-fg)}
+button.quiet{background:transparent;color:var(--accent);border:1px solid var(--line)}
+select{background:var(--surface);color:var(--fg);border:1px solid var(--line)}
+textarea{font:.85rem ui-monospace,Consolas,monospace;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px;width:100%;box-sizing:border-box;min-height:140px}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+#count{color:var(--muted)}
+</style></head><body><main>
+<header><h1>AS 1100 and pipeline: to do</h1>
+<p class="lede">Logged 13/11/2026. Tick items off as they are done. Ticks and notes are kept in this browser only. Copy the list to paste back into the chat.</p></header>
+<div class="bar"><span id="count"></span>
+<label>Show <select id="filter"><option value="all">everything</option><option value="Ross">Ross's items</option><option value="Claude">Claude's items</option><option value="open">not done</option></select></label></div>
+<form id="f">
+<fieldset><legend>AS 1100 inputs (Ross)</legend>
+<div class="task" data-id="std-101" data-who="Ross"><input type="checkbox" id="c-std-101"><label for="c-std-101"><span class="who Ross">ROSS</span>Supply AS 1100.101-1992, full body (we only have its 5-page Amdt 1). Step 0 template and the line, lettering, dimension and sheet checks all wait on it.</label><input type="text" id="n-std-101" placeholder="Note" aria-label="Note for std-101"></div>
+<div class="task" data-id="std-hb47" data-who="Ross"><input type="checkbox" id="c-std-hb47"><label for="c-std-hb47"><span class="who Ross">ROSS</span>Supply HB 47 if you hold it.</label><input type="text" id="n-std-hb47" placeholder="Note" aria-label="Note for std-hb47"></div>
+<div class="task" data-id="std-others" data-who="Ross"><input type="checkbox" id="c-std-others"><label for="c-std-others"><span class="who Ross">ROSS</span>Supply the standards 201 hands off to, if you want those checked: AS 1101.3 (welding symbols), AS 2536 (surface texture), AS 1913 (centre holes). Optional: AS 1100.301, .401, .501.</label><input type="text" id="n-std-others" placeholder="Note" aria-label="Note for std-others"></div>
+<div class="task" data-id="licence" data-who="Ross"><input type="checkbox" id="c-licence"><label for="c-licence"><span class="who Ross">ROSS</span>Decide the licence position. The PDFs are your 1-user personal licence and bar copying, storage and network use. Options: ask SAI Global (copyright@saiglobal.com) for permission or a network licence, or keep standard-derived tables out of the QD worker.</label><input type="text" id="n-licence" placeholder="Note" aria-label="Note for licence"></div>
+<div class="task" data-id="confirm-201" data-who="Ross"><input type="checkbox" id="c-confirm-201"><label for="c-confirm-201"><span class="who Ross">ROSS</span>Check each DRAFT item in as1100-profile/items_201.json against your own copy and set it CONFIRMED or REJECTED.</label><input type="text" id="n-confirm-201" placeholder="Note" aria-label="Note for confirm-201"></div>
+<div class="task" data-id="nts-ruling" data-who="Ross"><input type="checkbox" id="c-nts-ruling"><label for="c-nts-ruling"><span class="who Ross">ROSS</span>Rule on N.T.S. masters against AS 1100.201 cl 2.4 (scales shown clearly, kept to a minimum). Keep as a house rule, or change.</label><input type="text" id="n-nts-ruling" placeholder="Note" aria-label="Note for nts-ruling"></div>
+<div class="task" data-id="masters" data-who="Ross"><input type="checkbox" id="c-masters"><label for="c-masters"><span class="who Ross">ROSS</span>Send two or three DXF masters (a clean A3 and a dimension-heavy one) so I can list where they differ from the standard. Keep out of git. They are not expected to follow AS 1100, so this is a deviations list for you to rule on.</label><input type="text" id="n-masters" placeholder="Note" aria-label="Note for masters"></div>
+</fieldset>
+<fieldset><legend>AS 1100 build (Claude)</legend>
+<div class="task" data-id="b-template" data-who="Claude"><input type="checkbox" id="c-b-template"><label for="c-b-template"><span class="who Claude">CLAUDE</span>Step 0 template DXF from AS 1100.101 clauses: layers, linetypes, line weights, text style and heights, dimension style, sheets, title block, projection symbol. Blocked on 101.</label><input type="text" id="n-b-template" placeholder="Note" aria-label="Note for b-template"></div>
+<div class="task" data-id="b-lint101" data-who="Claude"><input type="checkbox" id="c-b-lint101"><label for="c-b-lint101"><span class="who Claude">CLAUDE</span>AS 1100.101 checks in the linter (lines, lettering, scales, dimensioning, symbols). Blocked on 101.</label><input type="text" id="n-b-lint101" placeholder="Note" aria-label="Note for b-lint101"></div>
+<div class="task" data-id="b-tables" data-who="Claude"><input type="checkbox" id="c-b-tables"><label for="c-b-tables"><span class="who Claude">CLAUDE</span>Encode AS 1100.201 Appendix A Tables A1 to A7 as general-tolerance checks. Waits on the licence decision.</label><input type="text" id="n-b-tables" placeholder="Note" aria-label="Note for b-tables"></div>
+<div class="task" data-id="b-symbol" data-who="Claude"><input type="checkbox" id="c-b-symbol"><label for="c-b-symbol"><span class="who Claude">CLAUDE</span>Surface texture symbol geometry check (60 degree legs, 1.4h / 2h / 2.8h sizes, Fig 3.2) and where the Ra value sits (cl 3.3.2).</label><input type="text" id="n-b-symbol" placeholder="Note" aria-label="Note for b-symbol"></div>
+<div class="task" data-id="b-201rest" data-who="Claude"><input type="checkbox" id="c-b-201rest"><label for="c-b-201rest"><span class="who Claude">CLAUDE</span>Read AS 1100.201 Sections 4 and 6 to 12 and Appendices B to D in detail; add items (pipelines, springs, gears, splines, bearings, seals, knurling, castings, Ra guidance).</label><input type="text" id="n-b-201rest" placeholder="Note" aria-label="Note for b-201rest"></div>
+<div class="task" data-id="b-deviations" data-who="Claude"><input type="checkbox" id="c-b-deviations"><label for="c-b-deviations"><span class="who Claude">CLAUDE</span>Deviations report: measure the masters against the profile (profile_extract.py plus the checks) and list each difference for a ruling.</label><input type="text" id="n-b-deviations" placeholder="Note" aria-label="Note for b-deviations"></div>
+<div class="task" data-id="b-hook" data-who="Claude"><input type="checkbox" id="c-b-hook"><label for="c-b-hook"><span class="who Claude">CLAUDE</span>Connect the linter to pipeline steps 9, 10 and 11 so its findings go to the human sign-off list.</label><input type="text" id="n-b-hook" placeholder="Note" aria-label="Note for b-hook"></div>
+<div class="task" data-id="b-wording" data-who="Claude"><input type="checkbox" id="c-b-wording"><label for="c-b-wording"><span class="who Claude">CLAUDE</span>Run as1100_201_checks.py on a real issued drawing and tune it (text-only checks so far; tested on synthetic files).</label><input type="text" id="n-b-wording" placeholder="Note" aria-label="Note for b-wording"></div>
+</fieldset>
+<fieldset><legend>Pipeline and plan</legend>
+<div class="task" data-id="p-vision" data-who="Ross"><input type="checkbox" id="c-p-vision"><label for="c-p-vision"><span class="who Ross">ROSS</span>Decide: may client drawings go to a hosted AI vision model? Assumed NO (local models only) until decided.</label><input type="text" id="n-p-vision" placeholder="Note" aria-label="Note for p-vision"></div>
+<div class="task" data-id="p-bhp" data-who="Ross"><input type="checkbox" id="c-p-bhp"><label for="c-p-bhp"><span class="who Ross">ROSS</span>Answer the three BHP revision-table and file-naming questions (BHP owns the revision system on their drawings).</label><input type="text" id="n-p-bhp" placeholder="Note" aria-label="Note for p-bhp"></div>
+<div class="task" data-id="p-nas" data-who="Ross"><input type="checkbox" id="c-p-nas"><label for="c-p-nas"><span class="who Ross">ROSS</span>NAS reference catalogue: where the crawler runs, what is on the NAS, and whether any content is confidential.</label><input type="text" id="n-p-nas" placeholder="Note" aria-label="Note for p-nas"></div>
+<div class="task" data-id="p-gpu" data-who="Ross"><input type="checkbox" id="c-p-gpu"><label for="c-p-gpu"><span class="who Ross">ROSS</span>What hardware does the QD worker have? Local vision models (step 4) need to fit it.</label><input type="text" id="n-p-gpu" placeholder="Note" aria-label="Note for p-gpu"></div>
+<div class="task" data-id="p-overlay" data-who="Ross"><input type="checkbox" id="c-p-overlay"><label for="c-p-overlay"><span class="who Ross">ROSS</span>Send one real vector client PDF plus the matching issued drawing as DXF so I can run the overlay check on a real job. Keep out of git.</label><input type="text" id="n-p-overlay" placeholder="Note" aria-label="Note for p-overlay"></div>
+<div class="task" data-id="p-chat" data-who="Ross"><input type="checkbox" id="c-p-chat"><label for="c-p-chat"><span class="who Ross">ROSS</span>Name the chat that holds the auto-draft plan, if it is not the register chat, so reviews go there.</label><input type="text" id="n-p-chat" placeholder="Note" aria-label="Note for p-chat"></div>
+<div class="task" data-id="p-diagram" data-who="Claude"><input type="checkbox" id="c-p-diagram"><label for="c-p-diagram"><span class="who Claude">CLAUDE</span>Issue pipeline diagram Rev D when the above change something (edit REVS in docs/pipeline-diagram/make_diagram.py).</label><input type="text" id="n-p-diagram" placeholder="Note" aria-label="Note for p-diagram"></div>
+<div class="task" data-id="p-licences" data-who="Claude"><input type="checkbox" id="c-p-licences"><label for="c-p-licences"><span class="who Claude">CLAUDE</span>Licence check on eDOCr2, DeepLSD and SegFormer weights before they go into the worker.</label><input type="text" id="n-p-licences" placeholder="Note" aria-label="Note for p-licences"></div>
+</fieldset>
+<fieldset><legend>Earlier open items</legend>
+<div class="task" data-id="e-email" data-who="Ross"><input type="checkbox" id="c-e-email"><label for="c-e-email"><span class="who Ross">ROSS</span>Run the email index on the archives (list, then index with archives, then pair) and send the output.</label><input type="text" id="n-e-email" placeholder="Note" aria-label="Note for e-email"></div>
+<div class="task" data-id="e-cases" data-who="Ross"><input type="checkbox" id="c-e-cases"><label for="c-e-cases"><span class="who Ross">ROSS</span>Run build_cases.py on the pairs and send the results.</label><input type="text" id="n-e-cases" placeholder="Note" aria-label="Note for e-cases"></div>
+<div class="task" data-id="e-afj" data-who="Ross"><input type="checkbox" id="c-e-afj"><label for="c-e-afj"><span class="who Ross">ROSS</span>Ask AFJ whether true-scale drawings are acceptable in place of N.T.S.</label><input type="text" id="n-e-afj" placeholder="Note" aria-label="Note for e-afj"></div>
+<div class="task" data-id="e-step" data-who="Ross"><input type="checkbox" id="c-e-step"><label for="c-e-step"><span class="who Ross">ROSS</span>Export a STEP from Inventor for a no-assumptions pilot of the model-first method.</label><input type="text" id="n-e-step" placeholder="Note" aria-label="Note for e-step"></div>
+<div class="task" data-id="e-access" data-who="Ross"><input type="checkbox" id="c-e-access"><label for="c-e-access"><span class="who Ross">ROSS</span>Give access to the plugin, worker and docs for review items A to D.</label><input type="text" id="n-e-access" placeholder="Note" aria-label="Note for e-access"></div>
+<div class="task" data-id="e-ocs" data-who="Ross"><input type="checkbox" id="c-e-ocs"><label for="c-e-ocs"><span class="who Ross">ROSS</span>Open CAD Studio checks: tick the 15-minute list in ocs-test/ROSS-CHECKLIST.md and send back the results.</label><input type="text" id="n-e-ocs" placeholder="Note" aria-label="Note for e-ocs"></div>
+<div class="task" data-id="e-tied" data-who="Ross"><input type="checkbox" id="c-e-tied"><label for="c-e-tied"><span class="who Ross">ROSS</span>Send a real AFJ metallic tied-bellows drawing if there is one, so the model can be checked against it.</label><input type="text" id="n-e-tied" placeholder="Note" aria-label="Note for e-tied"></div>
+</fieldset>
+</form>
+<div class="bar"><button type="button" id="copy">Copy the list</button><button type="button" id="clear" class="quiet">Untick everything</button><span id="status" role="status"></span></div>
+<textarea id="out" readonly aria-label="List as text"></textarea>
+</main>
+<script>
+(function(){
+var KEY="as1100-todo-2026-11-13",f=document.getElementById("f"),out=document.getElementById("out");
+function tasks(){return [].slice.call(f.querySelectorAll(".task"));}
+function load(){try{var s=JSON.parse(localStorage.getItem(KEY)||"{}");tasks().forEach(function(t){var id=t.dataset.id;if(s[id]){t.querySelector("input[type=checkbox]").checked=!!s[id].d;t.querySelector("input[type=text]").value=s[id].n||"";}});}catch(e){}}
+function save(){try{var s={};tasks().forEach(function(t){s[t.dataset.id]={d:t.querySelector("input[type=checkbox]").checked,n:t.querySelector("input[type=text]").value};});localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
+function render(){
+ var done=0,all=tasks().length,flt=document.getElementById("filter").value,lines=["AS 1100 and pipeline: to do (13/11/2026)",""];
+ tasks().forEach(function(t){var c=t.querySelector("input[type=checkbox]").checked,n=t.querySelector("input[type=text]").value.trim();
+  t.classList.toggle("done",c);if(c)done++;
+  var show=flt==="all"||flt===t.dataset.who||(flt==="open"&&!c);t.style.display=show?"":"none";
+  lines.push((c?"[x] ":"[ ] ")+t.dataset.who+": "+t.querySelector("label").textContent.replace(t.dataset.who.toUpperCase(),"").trim()+(n?"  NOTE: "+n:""));});
+ document.getElementById("count").textContent=done+" of "+all+" done";out.value=lines.join("\n");save();}
+f.addEventListener("input",render);f.addEventListener("change",render);document.getElementById("filter").addEventListener("change",render);
+document.getElementById("copy").addEventListener("click",function(){var st=document.getElementById("status");try{navigator.clipboard.writeText(out.value).then(function(){st.textContent="Copied.";},function(){out.select();st.textContent="Selected. Press Ctrl+C.";});}catch(e){out.select();st.textContent="Selected. Press Ctrl+C.";}});
+document.getElementById("clear").addEventListener("click",function(){tasks().forEach(function(t){t.querySelector("input[type=checkbox]").checked=false;});render();});
+load();render();
+})();
+</script></body></html>

@@ -1,5 +1,9 @@
 # AS 1100 profile (pipeline step 0)
 
+Method (changed 13/11/2026): Ross's masters are NOT to AS 1100. The profile is built from the standard only. The masters are measured against it to list deviations, each for Ross to rule on. `profile_extract.py` is the measuring tool, not the source.
+
+Files: `items_201.json` (AS 1100.201 items, each with its clause, status DRAFT until Ross confirms), `as1100_201_checks.py` (text checks that run on a DXF today), `TODO-TICKLIST.html` (open tasks to tick off).
+
 Rule: nothing in the profile is "AS 1100" until a person has matched it to a clause in the copy of AS 1100.101, AS 1100.201 or HB 47 on file and set it to CONFIRMED. Nothing is written from memory.
 
 Status values: UNVERIFIED (observed in a master, no clause yet), CONFIRMED (clause cited), REJECTED (master differs from the standard; do not copy it).
