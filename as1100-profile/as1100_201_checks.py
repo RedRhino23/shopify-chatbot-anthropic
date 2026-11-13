@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AS 1100.201 checks that can be run on a DXF today. Every finding cites its clause.
+"""AS 1100.201 (and AS 1101.3 process letters) checks that can be run on a DXF today. Every finding cites its clause.
     python as1100_201_checks.py drawing.dxf [--json out.json]
 Only reads text. It does not judge geometry. Items in items_201.json marked "manual" are not checked here.
 Severity: ERROR = contradicts an amendment or a table; ADVISORY = the standard says should/prefer, or needs Ross's ruling.
@@ -43,6 +43,11 @@ def check(path, purpose="unknown"):
         v = float(m.group(1))
         if not any(abs(v - s) < 1e-9 for s in RA_SERIES):
             F.append(("ERROR", "201-3.3.1", f"Ra {m.group(1)} is not in the preferred series (Table 3.1: {', '.join(str(s) for s in RA_SERIES)})."))
+    # AS 1101.3 cl 2.3.4.4: process shown by Appendix A letter designation
+    W = json.load(open(HERE_ITEMS.with_name("items_1101_3.json")))["params"]["nonstandard_names"]
+    for name, use in W.items():
+        if re.search(r"(?<![A-Z0-9])" + name + r"(?![A-Z0-9])", blob):
+            F.append(("ADVISORY", "1101-2.3.4.4", f"'{name}' used for a welding process. AS 1101.3 cl 2.3.4.4 says use the Appendix A letters ({use})."))
     # general tolerance note (advisory)
     if not re.search(r"GENERAL.*TOLERANC|UNLESS (NOTED|STATED|OTHERWISE)|\bUNO\b|TOLERANCES? EXCEPT", blob):
         F.append(("ADVISORY", "201-2.1.2 / 201-A2", "no general tolerance note found. The standard prefers one (guidance only)."))
