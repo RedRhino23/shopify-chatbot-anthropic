@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1190" width="1240" height="1190" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker></defs>
+<rect width="1240" height="1190" fill="#fff"/>
+<text x="30" y="44" font-size="28" font-weight="700" fill="#1f2328" text-anchor="start" >PDF → AS 1100 drawing pipeline</text>
+<text x="30" y="68" font-size="14" font-weight="400" fill="#5b6470" text-anchor="start" >Read the true geometry, then re-draft it to AS 1100.   Rev C, 13/11/2026</text>
+<rect x="800" y="34" width="26" height="14" rx="3" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="832" y="45" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >MVP step</text>
+<rect x="930" y="34" width="26" height="14" rx="3" fill="#6aa8ee" stroke="#9aa0a6" stroke-width="1"/>
+<text x="962" y="45" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >supporting / data</text>
+<rect x="1060" y="34" width="26" height="14" rx="3" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="1092" y="45" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >later</text>
+<rect x="800" y="56" width="22" height="13" rx="6" fill="#2a9d5c"/>
+<text x="811" y="66" font-size="9" font-weight="700" fill="#fff" text-anchor="middle" >B</text>
+<text x="828" y="66" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >badge = revision that added or changed the box</text>
+<rect x="20" y="90" width="1200" height="215" rx="8" fill="#fafafa" stroke="#d0d0d0"/>
+<text x="34" y="112" font-size="13" font-weight="400" fill="#5b6470" text-anchor="start" >Read the drawing</text>
+<rect x="40" y="150" width="150" height="90" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="115.0" y="170" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >1 Triage</text>
+<text x="115.0" y="188.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Vector or raster;</text>
+<text x="115.0" y="202.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >set scale in mm</text>
+<rect x="230" y="118" width="150" height="78" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="305.0" y="138" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >2 Vector extract</text>
+<text x="305.0" y="156.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >pdfplumber paths + text</text>
+<text x="305.0" y="170.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >→ JSON sketch</text>
+<rect x="230" y="204" width="150" height="78" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="305.0" y="224" font-size="12.0" font-weight="700" fill="#1f2328" text-anchor="middle" >3 Raster vectorize</text>
+<text x="305.0" y="242.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >SegFormer + DeepLSD</text>
+<text x="305.0" y="256.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >+ arc fits</text>
+<rect x="420" y="130" width="190" height="126" rx="7" fill="#d9d9d9" stroke="#2a9d5c" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="515.0" y="150" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >4 Read annotations</text>
+<text x="515.0" y="168.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >eDOCr2 / VLM: dims,</text>
+<text x="515.0" y="182.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >GD&amp;T, title block</text>
+<text x="515.0" y="197.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >(local models only)</text>
+<text x="515.0" y="211.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Every dimension read is</text>
+<text x="515.0" y="226.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >checked against step 6;</text>
+<text x="515.0" y="240.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >disagreement → a person</text>
+<rect x="589.6" y="122" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="596.8" y="133.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >C</text>
+<rect x="650" y="150" width="140" height="90" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="720.0" y="170" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >5 Understand</text>
+<text x="720.0" y="188.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Graph model: roles,</text>
+<text x="720.0" y="202.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >links, constraints,</text>
+<text x="720.0" y="217.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >views</text>
+<rect x="830" y="150" width="150" height="90" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="905.0" y="170" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >5b Components</text>
+<text x="905.0" y="188.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Spot, match and size</text>
+<text x="905.0" y="202.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >standard parts from</text>
+<text x="905.0" y="217.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >the catalogue</text>
+<rect x="1020" y="150" width="160" height="90" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="1100.0" y="170" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >6 Param. solve</text>
+<text x="1100.0" y="188.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >FreeCAD / planegcs;</text>
+<text x="1100.0" y="202.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >OCR dims drive;</text>
+<text x="1100.0" y="217.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >conflicts flagged</text>
+<path d="M190,195 L210,195 L210,157 L230,157" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M190,195 L210,195 L210,243 L230,243" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M380,157 L400,157 L400,180 L420,180" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M380,243 L400,243 L400,215 L420,215" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M610,195 L650,195" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M790,195 L830,195" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M980,195 L1020,195" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M1100,150 L1100,106 L515,106 L515,130" fill="none" stroke="#333" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+<rect x="670.0" y="100" width="260" height="14" fill="#fff"/>
+<text x="800" y="110" font-size="10" font-weight="400" fill="#333" text-anchor="middle" >solved geometry checks each dimension read</text>
+<rect x="20" y="340" width="1200" height="190" rx="8" fill="#fafafa" stroke="#d0d0d0"/>
+<text x="34" y="362" font-size="13" font-weight="400" fill="#5b6470" text-anchor="start" >Re-draft to AS 1100</text>
+<rect x="40" y="395" width="130" height="100" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="105.0" y="415" font-size="9.7" font-weight="700" fill="#1f2328" text-anchor="middle" >7 Geometry clean-up</text>
+<text x="105.0" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >OCCT: trim, join,</text>
+<text x="105.0" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >close profiles;</text>
+<text x="105.0" y="462.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >check vs NAS values</text>
+<rect x="195" y="395" width="130" height="100" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="260.0" y="415" font-size="9.2" font-weight="700" fill="#1f2328" text-anchor="middle" >8 View normalisation</text>
+<text x="260.0" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Swap / realign views</text>
+<text x="260.0" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >that exist. Never invent</text>
+<text x="260.0" y="462.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >a projection the</text>
+<text x="260.0" y="476.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >source did not show</text>
+<rect x="304.6" y="387" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="311.8" y="398.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >C</text>
+<rect x="350" y="395" width="130" height="100" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="415.0" y="415" font-size="8.8" font-weight="700" fill="#1f2328" text-anchor="middle" >9 Re-draft to AS 1100</text>
+<text x="415.0" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Model + drafting layer</text>
+<text x="415.0" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >→ DXF: dims, blocks,</text>
+<text x="415.0" y="462.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >parts list, balloons</text>
+<rect x="505" y="395" width="140" height="100" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="575.0" y="415" font-size="8.3" font-weight="700" fill="#1f2328" text-anchor="middle" >9b Title block, no., rev</text>
+<text x="575.0" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Client&#x27;s own rev system</text>
+<text x="575.0" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >kept (BHP&#x27;s is BHP&#x27;s).</text>
+<text x="575.0" y="462.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >File name = drawing no.;</text>
+<text x="575.0" y="476.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >file rev = title block rev</text>
+<rect x="624.6" y="387" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="631.8" y="398.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >C</text>
+<rect x="670" y="395" width="130" height="100" rx="7" fill="#6aa8ee" stroke="#c4533b" stroke-width="2.5"/>
+<text x="735.0" y="415" font-size="10.8" font-weight="700" fill="#1f2328" text-anchor="middle" >10 Check &amp; review</text>
+<text x="735.0" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Overlay diff, DOF = 0.</text>
+<text x="735.0" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Edits → model (6) or</text>
+<text x="735.0" y="462.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >drafting layer (9)</text>
+<rect x="766.8" y="387" width="27.200000000000003" height="16" rx="8" fill="#2a9d5c"/>
+<text x="780.4" y="398.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >1st</text>
+<rect x="825" y="395" width="130" height="100" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="890.0" y="415" font-size="10.8" font-weight="700" fill="#1f2328" text-anchor="middle" >11 Human sign-off</text>
+<text x="890.0" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >A drafter checks the</text>
+<text x="890.0" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >overlay report and every</text>
+<text x="890.0" y="462.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >flagged item. Nothing</text>
+<text x="890.0" y="476.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >issues unchecked.</text>
+<rect x="934.6" y="387" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="941.8" y="398.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >C</text>
+<rect x="985" y="395" width="215" height="100" rx="7" fill="#d9d9d9" stroke="#c4533b" stroke-width="2.5"/>
+<text x="1092.5" y="415" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Outputs</text>
+<text x="1092.5" y="433.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >DXF · PDF · BOM (parts list,</text>
+<text x="1092.5" y="447.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >CSV/XLSX) · JSON/FCStd · STEP</text>
+<path d="M1100,240 L1100,318 L105,318 L105,395" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M170,445 L195,445" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M325,445 L350,445" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M480,445 L505,445" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M645,445 L670,445" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M800,445 L825,445" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M955,445 L985,445" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<rect x="20" y="565" width="1200" height="150" rx="8" fill="#fafafa" stroke="#d0d0d0"/>
+<text x="34" y="587" font-size="13" font-weight="400" fill="#5b6470" text-anchor="start" >Supporting tracks</text>
+<rect x="40" y="600" width="215" height="100" rx="7" fill="#6aa8ee" stroke="#9aa0a6" stroke-width="1"/>
+<text x="147.5" y="620" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >NAS reference catalogue</text>
+<text x="147.5" y="638.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Known sizes, scales, part dims</text>
+<text x="147.5" y="652.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >from past jobs. SQLite, read-only.</text>
+<text x="147.5" y="667.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Final issued rev only. Hints, not</text>
+<text x="147.5" y="681.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >truth. No client names. Crawler: todo</text>
+<rect x="234.6" y="592" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="241.8" y="603.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >B</text>
+<rect x="300" y="600" width="210" height="100" rx="7" fill="#6aa8ee" stroke="#c4533b" stroke-width="2.5"/>
+<text x="405.0" y="620" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >0 AS 1100 profile</text>
+<text x="405.0" y="638.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >.101, .201 + HB 47 as a DXF</text>
+<text x="405.0" y="652.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >template: layers, linetypes,</text>
+<text x="405.0" y="667.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >dim style, sheets, projection</text>
+<text x="405.0" y="681.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >symbol</text>
+<rect x="555" y="600" width="215" height="100" rx="7" fill="#6aa8ee" stroke="#9aa0a6" stroke-width="1"/>
+<text x="662.5" y="620" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Synthetic data</text>
+<text x="662.5" y="638.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >build123d/OCCT parts → HLR</text>
+<text x="662.5" y="652.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >views → AS 1100 / ISO / ASME</text>
+<text x="662.5" y="667.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >→ PDF/PNG. Trains steps 3–5</text>
+<rect x="880" y="600" width="200" height="100" rx="7" fill="#6aa8ee" stroke="#9aa0a6" stroke-width="1"/>
+<text x="980.0" y="620" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Parts catalogue</text>
+<text x="980.0" y="638.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Parametric templates +</text>
+<text x="980.0" y="652.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >BOM data: fasteners,</text>
+<text x="980.0" y="667.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >flanges, bearings, sections</text>
+<path d="M105,600 L105,495" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<rect x="29.0" y="538" width="152" height="14" fill="#fff"/>
+<text x="105" y="548" font-size="10" font-weight="400" fill="#333" text-anchor="middle" >known dims / scale check</text>
+<path d="M415,600 L415,495" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<rect x="378.0" y="538" width="74" height="14" fill="#fff"/>
+<text x="415" y="548" font-size="10" font-weight="400" fill="#333" text-anchor="middle" >style rules</text>
+<path d="M730,600 L730,495" fill="none" stroke="#333" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ah)"/>
+<rect x="693.0" y="538" width="74" height="14" fill="#fff"/>
+<text x="730" y="548" font-size="10" font-weight="400" fill="#333" text-anchor="middle" >corrections</text>
+<path d="M970,600 L970,497" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<path d="M970,497 L970,240" fill="none" stroke="#333" stroke-width="1.4" marker-end="url(#ah)"/>
+<rect x="939.0" y="290" width="62" height="14" fill="#fff"/>
+<text x="970" y="300" font-size="10" font-weight="400" fill="#333" text-anchor="middle" >templates</text>
+<rect x="20" y="750" width="1200" height="125" rx="8" fill="#fafafa" stroke="#d0d0d0"/>
+<text x="34" y="772" font-size="13" font-weight="400" fill="#5b6470" text-anchor="start" >Testing</text>
+<rect x="40" y="785" width="270" height="80" rx="7" fill="#6aa8ee" stroke="#9aa0a6" stroke-width="1"/>
+<text x="175.0" y="805" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Overlay check (built)</text>
+<text x="175.0" y="823.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Render result over source; per-entity</text>
+<text x="175.0" y="837.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >scores; numbers must match.</text>
+<text x="175.0" y="852.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >overlay-check/ in the repo; self-test passes</text>
+<rect x="289.6" y="777" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="296.8" y="788.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >B</text>
+<rect x="330" y="785" width="270" height="80" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="465.0" y="805" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Synthetic round trip</text>
+<text x="465.0" y="823.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >DXF → render → pipeline → compare,</text>
+<text x="465.0" y="837.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >at rising degradation</text>
+<rect x="620" y="785" width="270" height="80" rx="7" fill="#d9d9d9" stroke="#2a9d5c" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="755.0" y="805" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Frozen real test set</text>
+<text x="755.0" y="823.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >Past jobs from the NAS, redrawn by a</text>
+<text x="755.0" y="837.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >drafter. Never used for training.</text>
+<rect x="869.6" y="777" width="14.4" height="16" rx="8" fill="#2a9d5c"/>
+<text x="876.8" y="788.5" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" >B</text>
+<rect x="910" y="785" width="290" height="80" rx="7" fill="#d9d9d9" stroke="#9aa0a6" stroke-width="1"/>
+<text x="1055.0" y="805" font-size="13" font-weight="700" fill="#1f2328" text-anchor="middle" >Metrics + CI gate</text>
+<text x="1055.0" y="823.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >F1, CER, DOF; dimension satisfaction,</text>
+<text x="1055.0" y="837.5" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >fix count. AS 1100 linter, DXF opens</text>
+<text x="1055.0" y="852.0" font-size="10.5" font-weight="400" fill="#333" text-anchor="middle" >in ODA / LibreCAD</text>
+<text x="30" y="908" font-size="14" font-weight="700" fill="#1f2328" text-anchor="start" >Build order</text>
+<text x="30" y="930" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >0. Overlay check (step 10 diff) + frozen test set of past jobs. Overlay check built.</text>
+<text x="30" y="948" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >1. MVP: clean vector PDFs, rules only (terracotta steps: 0, 2, 6, 7, 9, 9b, 10, 11, outputs)</text>
+<text x="30" y="966" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >2. Synthetic data generator</text>
+<text x="30" y="984" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >3. Graph model replaces rules in step 5</text>
+<text x="30" y="1002" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >4. Parts catalogue + step 5b (~10 families)</text>
+<text x="30" y="1020" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >5. Raster path (step 3)</text>
+<text x="30" y="1038" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >6. GD&amp;T and multi-view</text>
+<text x="30" y="1070" font-size="14" font-weight="700" fill="#1f2328" text-anchor="start" >Decisions still open</text>
+<text x="30" y="1092" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >Hosted AI vision model for client drawings? Assume NO: local models only until decided.</text>
+<text x="30" y="1109" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >Three BHP revision / file-naming questions: not yet received; add when available.</text>
+<text x="30" y="1126" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >NAS: where the crawler runs, what is on it, and whether any content is confidential.</text>
+<text x="30" y="1143" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >Licences: PyMuPDF is AGPL (the overlay check uses pdfplumber instead). Check the</text>
+<text x="30" y="1160" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >   eDOCr2, DeepLSD and SegFormer weights before they go into the worker.</text>
+<rect x="810" y="905" width="410" height="217" fill="#fff" stroke="#1f2328" stroke-width="1.5"/>
+<line x1="810" y1="927" x2="1220" y2="927" stroke="#1f2328"/>
+<text x="818" y="921" font-size="12" font-weight="700" fill="#1f2328" text-anchor="start" >PDF → AS 1100 DRAWING PIPELINE</text>
+<text x="1212" y="921" font-size="12" font-weight="700" fill="#1f2328" text-anchor="end" >REV C</text>
+<line x1="810" y1="949" x2="1220" y2="949" stroke="#1f2328"/>
+<text x="818" y="943" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >DATE  13/11/2026</text>
+<text x="960" y="943" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >SCALE  N.T.S</text>
+<text x="1060" y="943" font-size="11" font-weight="400" fill="#1f2328" text-anchor="start" >DWG NO.  DC-AUTO-PIPE</text>
+<line x1="848" y1="949" x2="848" y2="1104" stroke="#1f2328"/>
+<line x1="918" y1="949" x2="918" y2="1104" stroke="#1f2328"/>
+<text x="829" y="963" font-size="10" font-weight="700" fill="#1f2328" text-anchor="middle" >REV</text>
+<text x="883" y="963" font-size="10" font-weight="700" fill="#1f2328" text-anchor="middle" >DATE</text>
+<text x="924" y="963" font-size="10" font-weight="700" fill="#1f2328" text-anchor="start" >WHAT CHANGED</text>
+<line x1="810" y1="969" x2="1220" y2="969" stroke="#1f2328"/>
+<text x="829" y="984" font-size="11" font-weight="700" fill="#1f2328" text-anchor="middle" >A</text>
+<text x="883" y="984" font-size="10" font-weight="400" fill="#1f2328" text-anchor="middle" >13/11/2026</text>
+<text x="924" y="984" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >First diagram, as received: steps 0 to 10, build order,</text>
+<text x="924" y="997" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >testing row.</text>
+<line x1="810" y1="1003" x2="1220" y2="1003" stroke="#888" stroke-width="0.6"/>
+<text x="829" y="1018" font-size="11" font-weight="700" fill="#1f2328" text-anchor="middle" >B</text>
+<text x="883" y="1018" font-size="10" font-weight="400" fill="#1f2328" text-anchor="middle" >13/11/2026</text>
+<text x="924" y="1018" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >Overlay check first, frozen real test set, local models</text>
+<text x="924" y="1031" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >only, NAS reference catalogue, decisions still open.</text>
+<line x1="810" y1="1054" x2="1220" y2="1054" stroke="#888" stroke-width="0.6"/>
+<text x="829" y="1069" font-size="11" font-weight="700" fill="#1f2328" text-anchor="middle" >C</text>
+<text x="883" y="1069" font-size="10" font-weight="400" fill="#1f2328" text-anchor="middle" >13/11/2026</text>
+<text x="924" y="1069" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >Reviewer items: human sign-off (11), title block / drawing</text>
+<text x="924" y="1082" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >no. / revision step (9b), step 4 cross-check, step 8</text>
+<text x="924" y="1095" font-size="10" font-weight="400" fill="#1f2328" text-anchor="start" >limit, licences in open decisions. Title block added.</text>
+<line x1="810" y1="1122" x2="1220" y2="1122" stroke="#888" stroke-width="0.6"/>
+</svg>
