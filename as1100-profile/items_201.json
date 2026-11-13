@@ -1,25 +1,186 @@
 {
   "source": "AS 1100.201-1992 with Amdt 1-1994; AS 1100.101-1992 Amdt 1-1994 (amendment pages only). Read from Ross Edgar's personal-licence copies on 13/11/2026. No standard text is held here: clause numbers, short paraphrases in our own words, and a few numbers only.",
-  "status_key": {"DRAFT": "cited by Claude from the file; Ross to confirm against his copy", "CONFIRMED": "Ross has checked it", "REJECTED": "Ross rules it does not apply"},
+  "status_key": {
+    "DRAFT": "cited by Claude from the file; Ross to confirm against his copy",
+    "CONFIRMED": "Ross has checked it",
+    "REJECTED": "Ross rules it does not apply"
+  },
   "items": [
-    {"id": "201-2.1.1", "clause": "AS 1100.201 cl 2.1.1", "says": "Units and methods of dimensioning and tolerancing follow AS 1100.101.", "check": "needs AS 1100.101 body", "status": "DRAFT"},
-    {"id": "201-2.1.2", "clause": "AS 1100.201 cl 2.1.2, Fig 2.1, App A (informative)", "says": "Use a general tolerance note so size and geometry of every feature is controlled. App A is guidance; the designer decides the values.", "check": "auto, advisory: general tolerance note present", "status": "DRAFT"},
-    {"id": "201-2.2", "clause": "AS 1100.201 cl 2.2.1 to 2.2.3", "says": "Line type and thickness follow AS 1100.101.", "check": "needs AS 1100.101 body", "status": "DRAFT"},
-    {"id": "201-2.4", "clause": "AS 1100.201 cl 2.4", "says": "Scales comply with AS 1100.101. Keep different scales on one sheet to a minimum and indicate every scale clearly.", "check": "auto, advisory: more than one scale on a sheet; scale not stated. N.T.S. is covered by house rule R-009 in the playbook (Ross, 13/11/2026)", "status": "DRAFT", "house_rule": "R-009"},
-    {"id": "201-3.2.1", "clause": "AS 1100.201 cl 3.2.1, Fig 3.2", "says": "Surface texture symbol: sloping lines at 60 degrees to the horizontal; size tied to character height h (ratios 1.4h, 2h, 2.8h in the figure).", "check": "manual for now (symbol is a block); geometry check is a later task", "status": "DRAFT", "params": {"slope_deg": 60, "h_series_mm": [2.5, 3.5, 5, 7, 10, 14, 20]}},
-    {"id": "201-3.2.2", "clause": "AS 1100.201 cl 3.2.2", "says": "Machining mandatory: basic symbol with a bar. Removal not permitted: basic symbol with a circle.", "check": "manual", "status": "DRAFT"},
-    {"id": "201-3.3.1", "clause": "AS 1100.201 cl 3.3.1, Table 3.1", "says": "Ra is chosen from the preferred series and shown in micrometres.", "check": "auto: every Ra value in text is in the series", "status": "DRAFT", "params": {"ra_um": [50, 25, 12.5, 6.3, 3.2, 1.6, 0.8, 0.4, 0.2, 0.1, 0.05, 0.025]}},
-    {"id": "201-3.3.2", "clause": "AS 1100.201 cl 3.3.2", "says": "A single Ra value is the maximum permitted. With two values, the maximum is placed above the minimum.", "check": "manual", "status": "DRAFT"},
-    {"id": "201-3.4", "clause": "AS 1100.201 cl 3.4.1 to 3.4.6", "says": "Production process in plain language above the symbol extension. Ra applies after plating or chemical treatment unless stated.", "check": "manual", "status": "DRAFT"},
-    {"id": "201-3.5.2", "clause": "AS 1100.201 cl 3.5.2", "says": "Where one texture applies to many surfaces, a defined substitute symbol may be used, placed near a view, the title block or the general notes. Exceptions are marked on their surfaces.", "check": "manual", "status": "DRAFT"},
-    {"id": "201-4.1", "clause": "AS 1100.201 cl 4.1, 2.3", "says": "Welding symbols are given in AS 1101.3.", "check": "needs AS 1101.3 (not on file)", "status": "DRAFT"},
-    {"id": "201-5", "clause": "AS 1100.201 Section 5, cl 5.2 to 5.4", "says": "Centre hole symbols per Fig 5.1; designation refers to AS 1913, drill type A, B or R, then d and D separated by a slash. No symbol if the centre hole may remain on the finished part.", "check": "manual; needs AS 1913 for the sizes", "status": "DRAFT"},
-    {"id": "201-A2", "clause": "AS 1100.201 App A cl A2, A3, Tables A1 to A7", "says": "General note: linear accuracy grade f, m, c or v; angular tolerance; geometry grade H, K or L. Perpendicularity is taken from the longer side.", "check": "auto, advisory: note present. Value tables not encoded until the licence position is settled", "status": "DRAFT"},
-    {"id": "AMD201-A4", "clause": "AS 1100.201 Amdt 1-1994, page 66 Table A4", "says": "Use 'Perpendicularity', not 'Squareness'.", "check": "auto: flag the word SQUARENESS", "status": "DRAFT"},
-    {"id": "AMD101-8.3", "clause": "AS 1100.101 Amdt 1-1994, page 156 Table 8.3", "says": "Use 'Perpendicularity' (not 'Squareness') and 'Circularity' (not 'Roundness') as tolerance characteristic names.", "check": "auto: flag SQUARENESS and ROUNDNESS", "status": "DRAFT"},
-    {"id": "AMD101-8.2", "clause": "AS 1100.101 Amdt 1-1994, page 146 Table 8.2", "says": "No asterisks on the circular runout and total runout symbols.", "check": "manual", "status": "DRAFT"},
-    {"id": "AMD101-8.56", "clause": "AS 1100.101 Amdt 1-1994, page 129 Fig 8.56", "says": "Corrected figure on interpretation of linear dimensions: a general tolerance note and limit readings (for example 500 with plus or minus 5).", "check": "manual", "status": "DRAFT"},
-    {"id": "AMD101-8.109", "clause": "AS 1100.101 Amdt 1-1994, page 161 Fig 8.109", "says": "Corrected figure: single datum established by two features.", "check": "manual", "status": "DRAFT"},
-    {"id": "201-6", "clause": "AS 1100.201 Sections 6 to 12", "says": "Simplified representation of pipelines, springs, gears, splines, rolling bearings, seals and knurling.", "check": "manual checklist; not yet read in detail", "status": "NOT READ"}
+    {
+      "id": "201-2.1.1",
+      "clause": "AS 1100.201 cl 2.1.1",
+      "says": "Units and methods of dimensioning and tolerancing follow AS 1100.101.",
+      "check": "needs AS 1100.101 body",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-2.1.2",
+      "clause": "AS 1100.201 cl 2.1.2, Fig 2.1, App A (informative)",
+      "says": "Use a general tolerance note so size and geometry of every feature is controlled. App A is guidance; the designer decides the values.",
+      "check": "auto, advisory: general tolerance note present",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-2.2",
+      "clause": "AS 1100.201 cl 2.2.1 to 2.2.3",
+      "says": "Line type and thickness follow AS 1100.101.",
+      "check": "needs AS 1100.101 body",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-2.4",
+      "clause": "AS 1100.201 cl 2.4",
+      "says": "Scales comply with AS 1100.101. Keep different scales on one sheet to a minimum and indicate every scale clearly.",
+      "check": "auto, advisory: more than one scale on a sheet; scale not stated. N.T.S. is covered by house rule R-009 in the playbook (Ross, 13/11/2026)",
+      "status": "DRAFT",
+      "house_rule": "R-009"
+    },
+    {
+      "id": "201-3.2.1",
+      "clause": "AS 1100.201 cl 3.2.1, Fig 3.2",
+      "says": "Surface texture symbol: sloping lines at 60 degrees to the horizontal; size tied to character height h (ratios 1.4h, 2h, 2.8h in the figure).",
+      "check": "manual for now (symbol is a block); geometry check is a later task",
+      "status": "DRAFT",
+      "params": {
+        "slope_deg": 60,
+        "h_series_mm": [
+          2.5,
+          3.5,
+          5,
+          7,
+          10,
+          14,
+          20
+        ]
+      }
+    },
+    {
+      "id": "201-3.2.2",
+      "clause": "AS 1100.201 cl 3.2.2",
+      "says": "Machining mandatory: basic symbol with a bar. Removal not permitted: basic symbol with a circle.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-3.3.1",
+      "clause": "AS 1100.201 cl 3.3.1, Table 3.1",
+      "says": "Ra is chosen from the preferred series and shown in micrometres.",
+      "check": "auto: every Ra value in text is in the series",
+      "status": "DRAFT",
+      "params": {
+        "ra_um": [
+          50,
+          25,
+          12.5,
+          6.3,
+          3.2,
+          1.6,
+          0.8,
+          0.4,
+          0.2,
+          0.1,
+          0.05,
+          0.025
+        ]
+      }
+    },
+    {
+      "id": "201-3.3.2",
+      "clause": "AS 1100.201 cl 3.3.2",
+      "says": "A single Ra value is the maximum permitted. With two values, the maximum is placed above the minimum.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-3.4",
+      "clause": "AS 1100.201 cl 3.4.1 to 3.4.6",
+      "says": "Production process in plain language above the symbol extension. Ra applies after plating or chemical treatment unless stated.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-3.5.2",
+      "clause": "AS 1100.201 cl 3.5.2",
+      "says": "Where one texture applies to many surfaces, a defined substitute symbol may be used, placed near a view, the title block or the general notes. Exceptions are marked on their surfaces.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-4.1",
+      "clause": "AS 1100.201 cl 4.1, 2.3",
+      "says": "Welding symbols are given in AS 1101.3.",
+      "check": "AS 1101.3-1987 supplied 13/11/2026; not yet read in detail",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-5",
+      "clause": "AS 1100.201 Section 5, cl 5.2 to 5.4",
+      "says": "Centre hole symbols per Fig 5.1; designation refers to AS 1913, drill type A, B or R, then d and D separated by a slash. No symbol if the centre hole may remain on the finished part.",
+      "check": "manual; needs AS 1913 for the sizes",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-A2",
+      "clause": "AS 1100.201 App A cl A2, A3, Tables A1 to A7",
+      "says": "General note: linear accuracy grade f, m, c or v; angular tolerance; geometry grade H, K or L. Perpendicularity is taken from the longer side.",
+      "check": "auto, advisory: note present. Value tables not encoded until the licence position is settled",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD201-A4",
+      "clause": "AS 1100.201 Amdt 1-1994, page 66 Table A4",
+      "says": "Use 'Perpendicularity', not 'Squareness'.",
+      "check": "auto: flag the word SQUARENESS",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD101-8.3",
+      "clause": "AS 1100.101 Amdt 1-1994, page 156 Table 8.3 and pages 214-215 Table A1",
+      "says": "Use 'Perpendicularity' (not 'Squareness') and 'Circularity' (not 'Roundness') as characteristic names, in Tables 8.3 and A1.",
+      "check": "auto: flag SQUARENESS and ROUNDNESS",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD101-8.2",
+      "clause": "AS 1100.101 Amdt 1-1994, page 146 Table 8.2",
+      "says": "No asterisks on the circular runout and total runout symbols.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD101-8.56",
+      "clause": "AS 1100.101 Amdt 1-1994, page 129 Fig 8.56",
+      "says": "Corrected figure on interpretation of linear dimensions: a general tolerance note and limit readings (for example 500 with plus or minus 5).",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD101-8.109",
+      "clause": "AS 1100.101 Amdt 1-1994, page 161 Fig 8.109",
+      "says": "Corrected figure: single datum established by two features.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD101-8.12",
+      "clause": "AS 1100.101 Amdt 1-1994, page 197 Table 8.12 (continued), Example item 2",
+      "says": "Figure replaced: profile tolerance with ordinates example.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "AMD101-8.1.2a",
+      "clause": "AS 1100.101 Amdt 1-1994, page 95 cl 8.1.2(a); page 128 cl 8.3.11.3",
+      "says": "cl 8.1.2(a) line 2: 'auxiliary' replaces 'reference'. cl 8.3.11.3: cross-reference is to Appendix H, not G.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-6",
+      "clause": "AS 1100.201 Sections 6 to 12",
+      "says": "Simplified representation of pipelines, springs, gears, splines, rolling bearings, seals and knurling.",
+      "check": "manual checklist; not yet read in detail",
+      "status": "NOT READ"
+    }
   ]
 }
