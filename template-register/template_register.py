@@ -10,9 +10,14 @@ Point --root at the NAS folder; it gets `register.json` and `files/`.
     python template_register.py --root R show TPL-MIM-A3-001
     python template_register.py --root R find --client MIM --sheet A3        (what pipeline step 9b calls)
     python template_register.py --root R approve TPL-MIM-A3-001 --by "Ross"
+    python template_register.py --root R retire TPL-MIM-A3-001 --version 1 --by "Ross" --why "client changed border"
+    python template_register.py --root R add pump.step --kind 3d --scope client --client MIM --name "MIM pump skid" --rev-owner client --units mm
     python template_register.py --root R check                                  files present, hashes match, fields found
 
+Kinds: 2d (border / title block, DXF or DWG) and 3d (model template: STEP, Inventor, SolidWorks, Fusion or a parametric script).
+Scopes: client (sits under that client's account: its own folder, clients/<CODE>/) or house (Drafting Central's own, house/).
 Rules
+- Approved templates are set in stone: the file is made read-only, its hash is recorded, and `check` flags any change. A change is a new version, never an edit. Old versions are never deleted; `retire` takes one out of use.
 - A template is never overwritten. `add` with the same client+sheet+name makes a new version (v2, v3 ...); old files stay.
 - `find` returns only APPROVED templates, newest version. Draft templates are never used on a job.
 - client = a short code (MIM, BHP). The full client name is optional and stays in the register on the NAS.
@@ -21,14 +26,18 @@ import argparse
 import datetime
 import hashlib
 import json
+import os
 import shutil
+import stat
 import sys
 from pathlib import Path
 
 import ezdxf
 
 SHEETS = ["A0", "A1", "A2", "A3", "A4"]
-FIELDS = ["template_id", "client", "client_name", "name", "version", "sheet", "orientation", "projection", "rev_owner", "purpose_default",
+EXT2D = {".dxf", ".dwg"}
+EXT3D = {".step", ".stp", ".iges", ".igs", ".ipt", ".iam", ".sldprt", ".sldasm", ".f3d", ".py"}
+FIELDS = ["template_id", "kind", "scope", "client", "client_account_id", "client_name", "name", "version", "sheet", "orientation", "projection", "rev_owner", "purpose_default",
           "file", "sha256", "title_block_tags", "layers", "extents", "text_heights", "status", "approved_by", "approved_on",
           "added_on", "source", "notes", "as1100_deviations"]
 
@@ -94,27 +103,49 @@ def guess_sheet(ext):
 
 def cmd_add(a):
     reg = load(a.root)
-    obs = read_template(a.file)
-    g_sheet, g_or = guess_sheet(obs["extents"])
-    sheet, orient = a.sheet or g_sheet, a.orientation or g_or
-    if sheet not in SHEETS:
-        sys.exit(f"sheet size not given and not guessable from the file extents ({obs['extents']}). Use --sheet A0..A4.")
-    same = [t for t in reg["templates"] if t["client"] == a.client and t["sheet"] == sheet and t["name"] == a.name]
+    ext = Path(a.file).suffix.lower()
+    kind = a.kind or ("2d" if ext in EXT2D else "3d" if ext in EXT3D else None)
+    if kind == "2d" and ext not in EXT2D or kind == "3d" and ext not in EXT3D or kind is None:
+        sys.exit(f"file type {ext} does not fit kind {a.kind or '(unknown)'}. 2d: {sorted(EXT2D)}  3d: {sorted(EXT3D)}")
+    if a.scope == "client" and not a.client:
+        sys.exit("a client template needs --client (it is stored under that client's account folder)")
+    client = a.client if a.scope == "client" else "HOUSE"
+    obs = {"title_block_tags": {}, "layers": [], "extents": None, "text_heights": []}
+    sheet = orient = None
+    if kind == "2d":
+        if ext == ".dxf":
+            obs = read_template(a.file)
+            g_sheet, g_or = guess_sheet(obs["extents"])
+        else:
+            g_sheet = g_or = None
+        sheet, orient = a.sheet or g_sheet, a.orientation or g_or
+        if sheet not in SHEETS:
+            sys.exit(f"sheet size not given and not guessable ({obs['extents']}). Use --sheet A0..A4.")
+        if not a.projection:
+            sys.exit("a 2d template must say its projection: --projection first|third")
+    same = [t for t in reg["templates"] if t["kind"] == kind and t["client"] == client and (t["sheet"] or "") == (sheet or "") and t["name"] == a.name]
     version = max([t["version"] for t in same], default=0) + 1
-    seq = len([t for t in reg["templates"] if t["client"] == a.client and t["sheet"] == sheet]) + 1
-    tid = f"TPL-{a.client}-{sheet}-{seq:03d}" if not same else same[0]["template_id"]
-    dest = Path(a.root) / "files" / f"{tid}_v{version}.dxf"
+    seq = len([t for t in reg["templates"] if t["kind"] == kind and t["client"] == client and (t["sheet"] or "") == (sheet or "")]) + 1
+    tag = (sheet or "3D")
+    tid = f"TPL-{client}-{tag}-{seq:03d}" if not same else same[0]["template_id"]
+    folder = Path("clients") / client if a.scope == "client" else Path("house")
+    dest = Path(a.root) / folder / "files" / f"{tid}_v{version}{ext}"
     dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.exists():
+        sys.exit(f"{dest} already exists; nothing is overwritten")
     shutil.copyfile(a.file, dest)
-    entry = {"template_id": tid, "client": a.client, "client_name": a.client_name or "", "name": a.name, "version": version, "sheet": sheet,
-             "orientation": orient, "projection": a.projection, "rev_owner": a.rev_owner, "purpose_default": a.purpose,
-             "file": str(dest.relative_to(a.root)).replace("\\", "/"), "sha256": sha(dest), "title_block_tags": obs["title_block_tags"],
-             "layers": obs["layers"], "extents": obs["extents"], "text_heights": obs["text_heights"], "status": "DRAFT", "approved_by": "",
-             "approved_on": "", "added_on": now(), "source": a.source or "", "notes": a.notes or "", "as1100_deviations": "not measured yet"}
+    entry = {"template_id": tid, "kind": kind, "scope": a.scope, "client": client, "client_account_id": a.client_account_id or "",
+             "client_name": a.client_name or "", "name": a.name, "version": version, "sheet": sheet, "orientation": orient,
+             "projection": a.projection if kind == "2d" else None, "units": a.units if kind == "3d" else None,
+             "family_code": a.family if kind == "3d" else None,
+             "rev_owner": a.rev_owner, "purpose_default": a.purpose, "file": str(dest.relative_to(a.root)).replace("\\", "/"), "sha256": sha(dest),
+             "title_block_tags": obs["title_block_tags"], "layers": obs["layers"], "extents": obs["extents"], "text_heights": obs["text_heights"],
+             "status": "DRAFT", "approved_by": "", "approved_on": "", "locked_on": "", "added_on": now(), "source": a.source or "",
+             "notes": a.notes or "", "as1100_deviations": "not measured yet"}
     reg["templates"].append(entry)
     save(a.root, reg)
-    print(f"added {tid} v{version} ({sheet} {orient}, projection {a.projection}, rev system: {a.rev_owner}), status DRAFT")
-    if not obs["title_block_tags"]:
+    print(f"added {tid} v{version} ({kind}, {a.scope}{' ' + client if a.scope == 'client' else ''}" + (f", {sheet} {orient}, projection {a.projection}" if kind == "2d" else f", units {a.units}") + f", rev system: {a.rev_owner}), status DRAFT")
+    if kind == "2d" and ext == ".dxf" and not obs["title_block_tags"]:
         print("note: no ATTDEF fields found, so title block values are plain text. Pipeline step 9b will have to find them by position.")
 
 
@@ -124,12 +155,14 @@ def rows(reg, a):
         r = [t for t in r if t["client"] == a.client]
     if getattr(a, "sheet", None):
         r = [t for t in r if t["sheet"] == a.sheet]
+    if getattr(a, "kind", None):
+        r = [t for t in r if t["kind"] == a.kind]
     return r
 
 
 def cmd_list(a):
     for t in rows(load(a.root), a):
-        print(f"{t['template_id']} v{t['version']:<2} {t['client']:<6} {t['sheet']:<3} {t['orientation'] or '':<9} {t['projection']:<6} rev:{t['rev_owner']:<7} {t['status']:<8} {t['name']}")
+        print(f"{t['template_id']} v{t['version']:<2} {t['kind']:<2} {t['client']:<6} {(t['sheet'] or '-'):<3} {(t['projection'] or t['units'] or ''):<6} rev:{t['rev_owner']:<7} {t['status']:<8} {t['name']}")
 
 
 def cmd_show(a):
@@ -139,11 +172,14 @@ def cmd_show(a):
 
 
 def cmd_find(a):
-    r = [t for t in rows(load(a.root), a) if t["status"] == "APPROVED"]
+    r = [t for t in rows(load(a.root), a) if t["status"] == "APPROVED" and t["scope"] == "client"]
+    if a.house:
+        r += [t for t in rows(argparse.Namespace(client="HOUSE", sheet=a.sheet, kind=a.kind), a) if False]
+        r += [t for t in load(a.root)["templates"] if t["scope"] == "house" and t["status"] == "APPROVED" and (not a.sheet or t["sheet"] == a.sheet) and (not a.kind or t["kind"] == a.kind)]
     if a.projection:
         r = [t for t in r if t["projection"] == a.projection]
     if not r:
-        sys.exit("no APPROVED template for that client/sheet. Add one, or approve a draft. Nothing is guessed.")
+        sys.exit("no APPROVED template under that client's account. Add one, approve a draft, or pass --house to allow a house template. Nothing is guessed.")
     best = {}
     for t in r:
         k = t["template_id"]
@@ -155,15 +191,32 @@ def cmd_find(a):
         print(f"{len(out)} approved templates match; a person picks one.", file=sys.stderr)
 
 
-def cmd_approve(a):
-    reg = load(a.root)
+def pick(reg, a):
     cand = [t for t in reg["templates"] if t["template_id"] == a.id]
     if not cand:
         sys.exit("no such template")
-    t = max(cand, key=lambda t: t["version"]) if a.version is None else next(t for t in cand if t["version"] == a.version)
-    t["status"], t["approved_by"], t["approved_on"] = "APPROVED", a.by, now()
+    return max(cand, key=lambda t: t["version"]) if a.version is None else next(t for t in cand if t["version"] == a.version)
+
+
+def cmd_approve(a):
+    reg = load(a.root)
+    t = pick(reg, a)
+    p = Path(a.root) / t["file"]
+    if sha(p) != t["sha256"]:
+        sys.exit("file differs from its recorded hash; refusing to approve. Add it again as a new version.")
+    os.chmod(p, stat.S_IREAD)  # set in stone: read-only on disk; the hash catches anything else
+    t["status"], t["approved_by"], t["approved_on"], t["locked_on"] = "APPROVED", a.by, now(), now()
     save(a.root, reg)
-    print(f"{t['template_id']} v{t['version']} APPROVED by {a.by} on {t['approved_on']}")
+    print(f"{t['template_id']} v{t['version']} APPROVED and LOCKED (read-only) by {a.by} on {t['approved_on']}")
+
+
+def cmd_retire(a):
+    reg = load(a.root)
+    t = pick(reg, a)
+    t["status"] = "RETIRED"
+    t["notes"] = (t["notes"] + f" | retired {now()} by {a.by}: {a.why}").strip(" |")
+    save(a.root, reg)
+    print(f"{t['template_id']} v{t['version']} RETIRED (file kept)")
 
 
 def cmd_check(a):
@@ -174,6 +227,8 @@ def cmd_check(a):
             print(f"MISSING {t['template_id']} v{t['version']}: {t['file']}"); bad += 1
         elif sha(p) != t["sha256"]:
             print(f"CHANGED {t['template_id']} v{t['version']}: file differs from its recorded hash"); bad += 1
+        if t["status"] == "APPROVED" and p.exists() and (p.stat().st_mode & (stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH)) and os.name != "nt":
+            print(f"UNLOCKED {t['template_id']} v{t['version']}: approved file is writable"); bad += 1
         if t["status"] == "APPROVED" and not t["approved_by"]:
             print(f"UNSIGNED {t['template_id']}: approved with no name"); bad += 1
     print("register ok" if not bad else f"{bad} problem(s)")
@@ -184,15 +239,20 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", required=True)
     sp = ap.add_subparsers(dest="cmd", required=True)
-    s = sp.add_parser("add"); s.add_argument("file"); s.add_argument("--client", required=True); s.add_argument("--client-name")
+    s = sp.add_parser("add"); s.add_argument("file"); s.add_argument("--client"); s.add_argument("--client-name")
     s.add_argument("--name", required=True); s.add_argument("--sheet", choices=SHEETS); s.add_argument("--orientation", choices=["landscape", "portrait"])
-    s.add_argument("--projection", choices=["first", "third"], required=True); s.add_argument("--rev-owner", choices=["client", "afj"], required=True)
+    s.add_argument("--kind", choices=["2d", "3d"]); s.add_argument("--scope", choices=["client", "house"], default="client")
+    s.add_argument("--client-account-id", help="the client's account id in the portal, when known")
+    s.add_argument("--projection", choices=["first", "third"]); s.add_argument("--units", default="mm"); s.add_argument("--family", help="register product family code (3d)")
+    s.add_argument("--rev-owner", choices=["client", "afj"], required=True)
     s.add_argument("--purpose", choices=["both", "sales", "manufacture"], default="both"); s.add_argument("--source"); s.add_argument("--notes")
     s.set_defaults(f=cmd_add)
-    s = sp.add_parser("list"); s.add_argument("--client"); s.add_argument("--sheet"); s.set_defaults(f=cmd_list)
+    s = sp.add_parser("list"); s.add_argument("--client"); s.add_argument("--sheet"); s.add_argument("--kind", choices=["2d", "3d"]); s.set_defaults(f=cmd_list)
     s = sp.add_parser("show"); s.add_argument("id"); s.add_argument("--version", type=int); s.set_defaults(f=cmd_show)
-    s = sp.add_parser("find"); s.add_argument("--client", required=True); s.add_argument("--sheet"); s.add_argument("--projection", choices=["first", "third"]); s.set_defaults(f=cmd_find)
+    s = sp.add_parser("find"); s.add_argument("--client", required=True); s.add_argument("--sheet"); s.add_argument("--kind", choices=["2d", "3d"])
+    s.add_argument("--projection", choices=["first", "third"]); s.add_argument("--house", action="store_true", help="also allow approved house templates"); s.set_defaults(f=cmd_find)
     s = sp.add_parser("approve"); s.add_argument("id"); s.add_argument("--by", required=True); s.add_argument("--version", type=int); s.set_defaults(f=cmd_approve)
+    s = sp.add_parser("retire"); s.add_argument("id"); s.add_argument("--by", required=True); s.add_argument("--why", required=True); s.add_argument("--version", type=int); s.set_defaults(f=cmd_retire)
     s = sp.add_parser("check"); s.set_defaults(f=cmd_check)
     a = ap.parse_args()
     a.f(a)
