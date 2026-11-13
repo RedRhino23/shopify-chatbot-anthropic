@@ -30,7 +30,7 @@ def texts(path):
     return [t.replace("\\P", "\n") for t in out if t and t.strip()]
 
 
-def check(path):
+def check(path, purpose="unknown"):
     F = []
     tx = texts(path)
     blob = "\n".join(tx).upper()
@@ -51,18 +51,24 @@ def check(path):
     nts = bool(re.search(r"N\.?T\.?S|NOT TO SCALE", blob))
     if len(scales) > 1:
         F.append(("ADVISORY", "201-2.4", f"more than one scale on the sheet ({', '.join(sorted(scales))}). Keep to a minimum and indicate each clearly."))
-    if nts:
-        F.append(("ADVISORY", "201-2.4", "sheet is marked N.T.S. Clause 2.4 sends scales to AS 1100.101 (body not on file). Needs Ross's ruling."))
+    # House rule R-009 (Ross, 13/11/2026): N.T.S. is accepted; scale does not matter for sales drawings.
+    if nts and purpose == "manufacture":
+        F.append(("ADVISORY", "201-2.4 / R-009", "N.T.S. on a drawing for manufacture. House rule R-009 allows it (dimensions govern); AS 1100.101 on scales is not on file to check against."))
+    elif nts and purpose == "unknown":
+        F.append(("ADVISORY", "201-2.4 / R-009", "N.T.S. sheet; purpose not given. Fine for sales (R-009). For manufacture see R-009. Pass --purpose sales|manufacture."))
     if not scales and not nts:
         F.append(("ADVISORY", "201-2.4", "no scale found on the sheet."))
+    if len(scales) > 1 and purpose == "sales":
+        F = [f for f in F if not (f[1] == "201-2.4" and "more than one scale" in f[2])]
     return F
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("dxf"); ap.add_argument("--json")
+    ap.add_argument("--purpose", choices=["sales", "manufacture", "unknown"], default="unknown", help="what the drawing is for (R-009)")
     a = ap.parse_args()
-    F = check(a.dxf)
+    F = check(a.dxf, a.purpose)
     for sev, item, msg in sorted(F, key=lambda f: f[0] != "ERROR"):
         print(f"{sev:8} {item:24} {msg}")
     err = sum(1 for f in F if f[0] == "ERROR")

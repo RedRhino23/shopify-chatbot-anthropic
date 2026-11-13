@@ -74,7 +74,15 @@ Status 08/11/2026. Rules R-001 to R-008 come from Ross's reviews of the Mount Is
 ## 4. Standards (Ross to fill in)
 - AS 1100: which points apply to which drawing type (the worker flags 2 on the test claim)
 - ASME B16.5: use EXACT flange values, not the rounded OneSteel chart
-- Scale: masters are N.T.S., not true scale. What that changes when editing.
+- Scale: see R-009. Still to fill in: what N.T.S. changes when editing.
+
+### R-009 N.T.S. masters (house rule, draft)
+- **Rule:** masters may be drawn N.T.S. instead of true scale, and the sheet says N.T.S. Dimensions govern, never scaled-off measurements.
+- **Why (Ross, 13/11/2026):** (1) true scale loses detail, for example a small feature on a large diameter; (2) a similar drawing can be reused by changing only the dimension values; (3) if the drawing is for sales and not for manufacture, scale does not matter.
+- **Check:** auto, advisory only: `as1100_201_checks.py --purpose manufacture|sales`. Sales: no finding. Manufacture: advisory, because AS 1100.201 cl 2.4 sends scales to AS 1100.101, whose body is not on file yet. Unknown purpose: advisory asks.
+- **Consequence for the pipeline:** on an N.T.S. drawing a dimension is allowed to disagree with the drawn length. The step 4 cross-check (dimension against solved geometry) cannot use absolute size there. It can only check shape and proportion, and a person decides the rest.
+- **Source:** Ross, 13/11/2026.
+- **Status:** draft (Ross to confirm the manufacture case against AS 1100.101 when supplied)
 
 ## 5. Product families (Ross to fill in, one block per register family code)
 - Family code (must match the register's product family codes and `families.json` keys)
