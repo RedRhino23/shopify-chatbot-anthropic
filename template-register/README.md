@@ -47,3 +47,6 @@ Limits (so far)
 - Blocks (INSERT) are matched but their contents are not copied into drafts; client logos and symbols usually arrive that way.
 - Border detection needs a closed rectangle on the sheet size. Borders drawn as four separate lines, or inside a block, are skipped for now.
 - Mined output holds client data: keep MINED on the NAS, not in git.
+
+## Getting the drawing list (14/11/2026)
+The drawing register (repo `drawing-register`) already scans the legacy roots and builds `scratch/legacy-package/package.jsonl` on QD, with each drawing's customer matched. `manifest_from_package.py` turns that package into the miner's manifest CSV. DWG to DXF: ODA File Converter is not installed on QD; AutoCAD Mechanical 2026's console (`accoreconsole /product ACM`) is the route that works there. Known border sources: `Q:\ACAD\COM\SUPPORT\AFJ 2D template.dwt`, `Q:\8606M-1 Nov 24\D8606m-1 New Boarder.dwg`, the BHP border in `Q:\Information\STANDARDS`, Roy Hill A1 borders, and `G:\Files\Borders`.
