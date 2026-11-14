@@ -253,11 +253,122 @@
       "status": "DRAFT"
     },
     {
-      "id": "201-AppCD",
-      "clause": "AS 1100.201 App C and D (informative)",
-      "says": "Guidance on Ra values and typical roughness from ordinary materials and common processes.",
-      "check": "not read in detail",
-      "status": "NOT READ"
+      "id": "201-AppC",
+      "clause": "AS 1100.201 App C, Table C1 (informative)",
+      "says": "General application of Ra values (micrometres), in our own words. 25: very rough, sand casting, torch or saw cutting, rough forgings; unmachined clearance areas. 12.5: very rough, heavy cuts and coarse feeds; clearance areas. 6.3: coarse production surface where tool marks are not objectionable; natural surfaces of forgings, extrusions, rolled surfaces. 3.2: the roughest surface recommended for parts under load, vibration and high stress; medium commercial machine finish; fine for slow, lightly loaded bearing surfaces, not for fast shafts or severe vibration. 1.6: good machine finish under controlled production, for close fits and stressed parts except fast shafts. 0.8: high-grade machine finish needing close control; costs rise rapidly below it. 0.4: high quality, fine grinding or lapping, where smoothness is of primary importance. 0.2, 0.1, 0.05, 0.025: very fine to precision gauge finishes, specified only when design makes it mandatory because cost is very high.",
+      "check": "none (guidance). An advisory could flag a very fine Ra (0.4 or finer) on a general arrangement drawing, for a person to look at",
+      "status": "DRAFT",
+      "params": {
+        "ra_um_order": [
+          25,
+          12.5,
+          6.3,
+          3.2,
+          1.6,
+          0.8,
+          0.4,
+          0.2,
+          0.1,
+          0.05,
+          0.025
+        ]
+      }
+    },
+    {
+      "id": "201-AppD",
+      "clause": "AS 1100.201 App D (informative), chart of typical Ra by manufacturing method",
+      "says": "A bar chart of the typical Ra range each process gives with ordinary materials. The values below were read BY EYE from the printed chart to the nearest chart step, so treat each as approximate (one step either way). The chart's Note 1: sand casting can reach Ra up to 125 micrometres on castings up to 250 kg.",
+      "check": "none (guidance); values approximate, confirm against the printed page before any check relies on them",
+      "status": "DRAFT",
+      "confidence": "approximate, read by eye",
+      "params": {
+        "typical_ra_um_range_approx": {
+          "sand casting": [
+            12.5,
+            50
+          ],
+          "shell moulding": [
+            3.2,
+            50
+          ],
+          "die casting": [
+            3.2,
+            25
+          ],
+          "pressure die casting": [
+            0.8,
+            25
+          ],
+          "investment casting": [
+            0.8,
+            6.3
+          ],
+          "drop forging": [
+            1.6,
+            25
+          ],
+          "plain rolling": [
+            0.4,
+            12.5
+          ],
+          "cutting": [
+            1.6,
+            12.5
+          ],
+          "longitudinal turning": [
+            0.4,
+            25
+          ],
+          "face turning": [
+            0.4,
+            25
+          ],
+          "drilling": [
+            1.6,
+            25
+          ],
+          "boring": [
+            0.4,
+            12.5
+          ],
+          "milling": [
+            0.8,
+            25
+          ],
+          "filing": [
+            1.6,
+            25
+          ],
+          "plain surface grinding": [
+            0.1,
+            3.2
+          ],
+          "cylindrical grinding": [
+            0.2,
+            3.2
+          ],
+          "polishing": [
+            0.05,
+            1.6
+          ],
+          "long-stroke honing": [
+            0.05,
+            1.6
+          ],
+          "lapping": [
+            0.025,
+            1.6
+          ],
+          "blasting": [
+            3.2,
+            25
+          ],
+          "flame cutting": [
+            6.3,
+            50
+          ]
+        }
+      }
     }
   ]
 }
