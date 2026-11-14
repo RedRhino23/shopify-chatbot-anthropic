@@ -211,13 +211,6 @@
       "status": "DRAFT"
     },
     {
-      "id": "201-8",
-      "clause": "AS 1100.201 cl 8.1 to 8.4",
-      "says": "Gears are normally drawn in conventional representation (teeth are not drawn). Terms follow AS 2075 (not on file). Spur, helical, straight bevel, spiral bevel and hypoid forms each have a conventional representation (Table 8.x) and a data summary.",
-      "check": "manual; AS 2075 needed",
-      "status": "DRAFT"
-    },
-    {
       "id": "201-9",
       "clause": "AS 1100.201 cl 9.1 to 9.4, Table 9.1",
       "says": "Splines: shown by symbol and designation near the feature; a true representation with all details is generally avoided. Conventional representation per Table 9.1: root and tooth lines Type B outside the axial section, root surface Type A in the axial section, pitch surface Type G for involute splines. Line types A, B, G, K are defined in AS 1100.101 (body not on file).",
@@ -587,9 +580,74 @@
     {
       "id": "201-figs-unread",
       "clause": "AS 1100.201 figures not yet looked at",
-      "says": "Section 8 (gears: Figs 8.x, Tables 8.1 to 8.x), the pipeline figures 6.1 to 6.24, Appendix A Figs A1 and A2, and Appendix B Figs B1 to B4 and Tables B1 to B3.",
+      "says": "Pipeline figures 6.1 to 6.24, Appendix A Figs A1 and A2, and Appendix B Figs B1 to B4 and Tables B1 to B3. (Section 8 gear figures read 14/11/2026.)",
       "check": "not read",
       "status": "NOT READ"
+    },
+    {
+      "id": "201-8",
+      "clause": "AS 1100.201 cl 8.1 to 8.4",
+      "says": "Gears are normally drawn in conventional representation (teeth are not drawn). Terms follow AS 2075 (not on file). Spur, helical, straight bevel, spiral bevel and hypoid forms each have a conventional representation (Table 8.x) and a data summary.",
+      "check": "manual; AS 2075 needed",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-F8.1",
+      "clause": "AS 1100.201 Fig 8.1 (cl 8.3.1)",
+      "says": "Spur gears are drawn conventionally: the teeth are not drawn. The outside diameter is a continuous line, the pitch circle a thin chain line, the root circle a thin line in the end view; a sectioned side view shows the hub. A gear tooth data block sits beside the view. Essential data (marked with an asterisk) for a spur gear: number of teeth, module (or diametral pitch), pressure angle, pitch diameter, tooth thickness, minimum whole depth, working depth, and class of gear with its standard. Other data: base circle diameter, maximum profile error, accumulated pitch error, adjacent pitch error, tooth alignment error, measurement over rollers and roller diameter, chordal height and chordal tooth thickness. Terms follow AS 2075 (not on file).",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026",
+      "params": {
+        "spur_essential_data": [
+          "number of teeth",
+          "module (diameter pitch)",
+          "pressure angle",
+          "pitch diameter",
+          "tooth thickness",
+          "whole depth, minimum",
+          "working depth",
+          "class of gear and relevant standard"
+        ]
+      }
+    },
+    {
+      "id": "201-8.3.2",
+      "clause": "AS 1100.201 cl 8.3.2",
+      "says": "Helical gears are drawn the same way as spur gears. Tooth data adds: lead (right or left hand), helix angle, transverse circular pitch, normal pressure angle, normal arc thickness at pitch line, measuring ball diameter and measurement over balls, maximum lead error, maximum pitch circle diameter runout (FIM relative to a datum X), normal chordal tooth thickness. Crossed helical gears were previously called spiral gears.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026",
+      "params": {
+        "helical_extra_data": [
+          "lead RH or LH",
+          "helix angle",
+          "transverse circular pitch",
+          "normal pressure angle",
+          "normal arc thickness at pitch line",
+          "measuring ball diameter",
+          "measurement over balls",
+          "maximum lead error",
+          "maximum pitch circle diameter runout (FIM)",
+          "normal chordal tooth thickness"
+        ]
+      }
+    },
+    {
+      "id": "201-F8.2",
+      "clause": "AS 1100.201 Figs 8.2 to 8.4 (cl 8.3.3 to 8.3.5)",
+      "says": "Bevel gears: the drawing shows a half-section with the pitch cone and root cone angles (xx degrees xx minutes), the outside tip diameter as a reference, the mounting distance, and the axis of the mating gear or pinion. A gear tooth data table lists, for straight bevel gears: number of teeth, diametral pitch, pitch diameter, shaft angle, working depth, pressure angle, whole depth, root angle, part number of the mating gear, its number of teeth, backlash on the specified mounting, chordal thickness, tooth caliper settings, chordal height, class of gear. Spiral bevel gears replace root angle with hand of spiral and add a summary number (cutter and machine details go on a summary sheet referred to on the drawing). Hypoid pinions add the offset above or below the centre-line, the face angle and the thrust surface (design choice).",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-T8.1",
+      "clause": "AS 1100.201 Table 8.1 (cl 8.4)",
+      "says": "Conventional representation of gears: a straight rack is drawn full length as a plain rectangle (single teeth are drawn with dimensions to show the limits of the toothed portion; the root surface may be a Type B thin line); a cylindrical spur gear is a circle outline with pitch circle and a section; one or more teeth may be drawn to show orientation against another feature such as a keyway; single helical teeth show the helix direction as short diagonal lines on the lower face (right hand), double helical as a V of lines; straight bevel, spiral and hypoid bevels show the cone outlines; worm wheel and worm have their own outlines; gear pairs (double helical, internal spur, rack and pinion, crossed axes, straight bevel, hypoid, worm gearing) show both members, and circles may be replaced by ellipses for clarity. The hand of a spiral shows on the gear and the pinion is the opposite hand.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
     }
   ]
 }
