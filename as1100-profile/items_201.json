@@ -176,10 +176,87 @@
       "status": "DRAFT"
     },
     {
-      "id": "201-6",
-      "clause": "AS 1100.201 Sections 6 to 12",
-      "says": "Simplified representation of pipelines, springs, gears, splines, rolling bearings, seals and knurling.",
-      "check": "manual checklist; not yet read in detail",
+      "id": "201-6.1",
+      "clause": "AS 1100.201 cl 6.1 to 6.3.2",
+      "says": "Section 6 is for SIMPLIFIED single-line pipeline drawings, not detailed views. A pipe is shown by a Type A line on its centre-line, whatever its diameter. Dimensions follow AS 1100.101. Nominal diameter may be shown as DN, and wall thickness on the line. Lengths start from the outer faces of pipe ends or flanges, or the centre of the joint. Bent pipes are dimensioned centre-line to centre-line; the functional angle is shown, and 90 degrees is not. Levels refer to the pipe centre. Line types A, B, G, K are defined in AS 1100.101 (body not on file).",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-6.3.3",
+      "clause": "AS 1100.201 cl 6.3.3 to 6.3.5",
+      "says": "Crossings without a connection do not interrupt the line of the hidden pipe. A permanent junction is a dot five times the line thickness (agrees with ISO 6412). Adjoining apparatus is outlined in Type K lines. Flow direction is an arrow on the pipe or beside a valve symbol. Line types A, B, G, K are defined in AS 1100.101 (body not on file).",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-6.3.6",
+      "clause": "AS 1100.201 cl 6.3.6, Figs 6.11, 6.24",
+      "says": "Flanges in simplified drawings are Type A lines: two concentric circles in the front view, one stroke for a single flange in side view, two strokes for a pair. Flange holes may be shown as crosses on their centre-lines, one per hole.",
+      "check": "manual; relevant to piping layouts, not to detailed expansion joint views",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-6.4",
+      "clause": "AS 1100.201 cl 6.4.1 to 6.4.6",
+      "says": "Isometric pipeline drawings: coordinate axes per Fig 6.12; deviations from the axes shown with hatched auxiliary planes; centre-line to centre-line dimensions; double dimensions put the second in brackets; points can carry reference numbers (hidden ones in brackets); a continuing drawing gets a note such as 'continued on drawing x'; symbols are drawn isometrically; valve actuators only where position or type matters; cones show nominal sizes above the symbol.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-7",
+      "clause": "AS 1100.201 cl 7.1 to 7.4, Table 7.1",
+      "says": "Springs are normally drawn in conventional representation (Table 7.1). Particulars to state depend on the type: helical springs give active coils plus end coils, free length, diameter (outside, mean or inside), section shape and end details; leaf springs give free centres, width and length of each leaf; cup and spiral springs have their own lists.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-8",
+      "clause": "AS 1100.201 cl 8.1 to 8.4",
+      "says": "Gears are normally drawn in conventional representation (teeth are not drawn). Terms follow AS 2075 (not on file). Spur, helical, straight bevel, spiral bevel and hypoid forms each have a conventional representation (Table 8.x) and a data summary.",
+      "check": "manual; AS 2075 needed",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-9",
+      "clause": "AS 1100.201 cl 9.1 to 9.4, Table 9.1",
+      "says": "Splines: shown by symbol and designation near the feature; a true representation with all details is generally avoided. Conventional representation per Table 9.1: root and tooth lines Type B outside the axial section, root surface Type A in the axial section, pitch surface Type G for involute splines. Line types A, B, G, K are defined in AS 1100.101 (body not on file).",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-10",
+      "clause": "AS 1100.201 cl 10.1",
+      "says": "Rolling bearings: conventional representation with all features in Type A lines. Where the exact outline matters, draw the true cross-section with an upright cross in the centre. Line types A, B, G, K are defined in AS 1100.101 (body not on file).",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-11",
+      "clause": "AS 1100.201 cl 11.1 to 11.4",
+      "says": "Seals (rotating shaft type): general representation is a square with a free-standing diagonal cross centred in it (the cross does not touch the square). Add an arrowhead to the cross only if the sealing direction matters. For exact contour, draw the true cross-section with the diagonal cross centred and not touching it.",
+      "check": "manual; this is shaft-seal representation, not expansion joint seals",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-12",
+      "clause": "AS 1100.201 cl 12.1, Table 12.1",
+      "says": "Knurling on a cylindrical feature is shown by a few Type B lines. The feature diameter is the dimension before knurling unless the teeth diameter, pitch or knurl type and grade is stated. Line types A, B, G, K are defined in AS 1100.101 (body not on file).",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-AppB",
+      "clause": "AS 1100.201 App B (informative) B1 to B10",
+      "says": "Castings: a casting drawing should show the casting information, surfaces to be machined and allowances, special requirements and pattern marks. Basic dimensions are for the raw casting before machining. There are 14 tolerance grades, CT3 to CT16. The tolerance zone is symmetric about the basic dimension unless agreed otherwise. Mismatch must lie within the table limit. Dimensions needing other tolerances are toleranced individually; wall thickness tolerance is specified to suit the casting.",
+      "check": "manual; value tables not encoded (licence)",
+      "status": "DRAFT"
+    },
+    {
+      "id": "201-AppCD",
+      "clause": "AS 1100.201 App C and D (informative)",
+      "says": "Guidance on Ra values and typical roughness from ordinary materials and common processes.",
+      "check": "not read in detail",
       "status": "NOT READ"
     }
   ]
