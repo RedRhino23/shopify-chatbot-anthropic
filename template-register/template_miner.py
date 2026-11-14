@@ -10,6 +10,9 @@ How it works
 2. Drawings of one client with the same sheet and border size, and alike title block line work (--similarity), form a cluster (one cluster = one candidate template).
 3. For each cluster, only what is shared survives: entities present at the same place in at least --threshold of the drawings.
    Text that sits in the same place but changes (job no., title, date, revision) becomes a field (ATTDEF) in the draft.
+3b. End client: the site owner a drawing is for (not the commissioning client). Found from a CLIENT: label and the text beside or below it
+   (a per-drawing field), or from fixed title block text that matches end_clients.toml (the border belongs to that end client). A cluster
+   gets an end_client when at least --threshold of its drawings agree; otherwise the counts are listed. Rules: end_clients.example.toml.
 4. Writes MINED/clusters.json (report), MINED/drafts/<cluster>.dxf (the draft template) and, with --register, adds each
    as a DRAFT to the template register. Nothing is approved here; a person approves.
 
@@ -20,9 +23,13 @@ Converter) and point this at the DXF folder. Outputs carry client data: keep MIN
 import argparse
 import csv
 import json
+import re
 import sys
+import tomllib
 from collections import Counter, defaultdict
 from pathlib import Path
+
+import math
 
 import ezdxf
 
@@ -124,6 +131,61 @@ def jaccard(a, b):
     return len(a & b) / len(a | b) if a | b else 1.0
 
 
+def load_end_clients(path):
+    """Rules from end_clients.toml (see end_clients.example.toml). Without a file: only the CLIENT: label rule and a guess from company-looking text."""
+    cfg = {"own_names": ["AUSTRALIAN FLEXIBLE JOINTS", "AFJ", "DRAFTING CENTRAL"], "labels": ["CLIENT", "CUSTOMER"], "end_client": []}
+    p = Path(path) if path else Path(__file__).with_name("end_clients.toml")
+    if p.exists():
+        cfg.update(tomllib.loads(p.read_text(encoding="utf-8")))
+    return cfg
+
+
+def norm_client(s):
+    s = re.sub(r"[^A-Z0-9 &-]", " ", s.upper())
+    s = re.sub(r"\b(PTY|LTD|PL|LIMITED|CORPORATION|CORP|THE)\b", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def to_code(text, cfg):
+    for rule in cfg.get("end_client", []):
+        if any(re.search(p, text, re.I) for p in rule["patterns"]):
+            return rule["code"]
+    return None
+
+
+def end_client_of(ents, border, cfg):
+    """(end client, how found, source text) for one drawing, or (None, "", "").
+    1. a label (CLIENT:) and the nearest text to its right or below: a per-drawing field.
+    2. fixed text in the title block region that matches a known end client, or (guess) looks like a company name that is not ours."""
+    x0, y0, w, h, sheet = border
+    texts = [(k[2], k[3], s) for k, s in ents if k[0] in ("TEXT", "MTEXT") and s]
+    labels = [t for t in texts if re.fullmatch(r"(?:" + "|".join(cfg["labels"]) + r")\s*:?", t[2].strip(), re.I)]
+    for lx, ly, _ in labels:
+        best = None
+        for tx, ty, s in texts:
+            dx, dy = tx - lx, ty - ly
+            if (0 < dx <= 0.20 * w and -0.045 * h <= dy <= 0.012 * h) or (abs(dx) <= 0.02 * w and -0.05 * h <= dy < 0):
+                if re.fullmatch(r"[A-Za-z ]{1,14}:", s.strip()) or s.strip().rstrip(":").upper() in ("CLIENT", "CUSTOMER"):
+                    continue
+                d = math.hypot(dx, dy * 3)
+                if best is None or d < best[0]:
+                    best = (d, s.strip())
+        if best:
+            code = to_code(best[1], cfg)
+            return (code or norm_client(best[1]) or None), "field", best[1]
+    own = [re.compile(p, re.I) for p in cfg["own_names"]]
+    for k, s in ents:
+        if k[0] in ("TEXT", "MTEXT") and s and in_title_region(k, w, h):
+            code = to_code(s, cfg)
+            if code:
+                return code, "fixed text", s
+    for k, s in ents:
+        if k[0] in ("TEXT", "MTEXT") and s and in_title_region(k, w, h) and re.search(r"\b(PTY|LTD|LIMITED|CORPORATION|CORP)\b", s, re.I):
+            if not any(o.search(s) for o in own):
+                return norm_client(s) or None, "guess: company-like text", s
+    return None, "", ""
+
+
 def load_manifest(p):
     m = {}
     if p:
@@ -138,10 +200,12 @@ def main():
     ap.add_argument("folder"); ap.add_argument("--out", required=True); ap.add_argument("--manifest")
     ap.add_argument("--min-count", type=int, default=3, help="smallest cluster that becomes a draft")
     ap.add_argument("--threshold", type=float, default=0.9, help="share of drawings an entity must appear in to count as shared")
+    ap.add_argument("--end-clients", help="end_clients.toml (default: next to this script, if present)")
     ap.add_argument("--similarity", type=float, default=0.8, help="title block line work must overlap this much (Jaccard) to be one template")
     ap.add_argument("--register"); ap.add_argument("--rev-owner", choices=["client", "afj"]); ap.add_argument("--projection", choices=["first", "third"])
     a = ap.parse_args()
     man = load_manifest(a.manifest)
+    ecfg = load_end_clients(a.end_clients)
     out = Path(a.out); (out / "drafts").mkdir(parents=True, exist_ok=True)
     clusters = {}; groups = defaultdict(list); skipped = []
     files = sorted(Path(a.folder).rglob("*.dxf"))
@@ -156,7 +220,8 @@ def main():
             skipped.append((str(f), "no sheet-sized border rectangle found")); continue
         ents = entities(msp, b[0], b[1])
         client = (man.get(f.name.lower(), {}).get("client") or f.parent.name).upper()
-        groups[(client, b[4], rd(b[2]), rd(b[3]))].append({"file": str(f), "border": b, "ents": ents, "client": client, "region": region_lines(ents, b)})
+        ec = end_client_of(ents, b, ecfg)
+        groups[(client, b[4], rd(b[2]), rd(b[3]))].append({"file": str(f), "border": b, "ents": ents, "client": client, "region": region_lines(ents, b), "end_client": ec})
     # within a client + sheet + border size, join drawings whose title block line work is alike (a stray drawing line does not split them)
     for (client, sheet, bw, bh), members in groups.items():
         freq = Counter(k for m in members for k in m["region"])
@@ -176,7 +241,11 @@ def main():
     for (client, sig), members in sorted(clusters.items(), key=lambda kv: -len(kv[1])):
         n = len(members)
         cid = f"{client}-{sig}"
-        row = {"cluster": cid, "client": client, "sheet": members[0]["border"][4], "drawings": n, "examples": [m["file"] for m in members[:3]], "draft": None, "fields": [], "shared_entities": 0}
+        ecs = Counter(m["end_client"][0] for m in members if m["end_client"][0])
+        how = Counter(m["end_client"][1] for m in members if m["end_client"][0])
+        top = ecs.most_common(1)[0] if ecs else None
+        end_client = top[0] if top and top[1] >= a.threshold * n else None   # one end client for (almost) every drawing: the border belongs to it
+        row = {"end_client": end_client, "end_client_counts": dict(ecs.most_common(10)), "end_client_found_by": dict(how), "cluster": cid, "client": client, "sheet": members[0]["border"][4], "drawings": n, "examples": [m["file"] for m in members[:3]], "draft": None, "fields": [], "shared_entities": 0}
         if n >= a.min_count:
             cnt = Counter(); texts = defaultdict(list)
             for m in members:
@@ -218,12 +287,17 @@ def main():
                 import subprocess
                 subprocess.run([sys.executable, str(Path(__file__).with_name("template_register.py")), "--root", a.register, "add", str(draft), "--client", client,
                                 "--name", f"mined {cid}", "--projection", a.projection, "--rev-owner", a.rev_owner, "--sheet", row["sheet"],
-                                "--source", f"mined from {n} drawings"], check=True)
+                                "--source", f"mined from {n} drawings"] + (["--end-client", end_client] if end_client else []), check=True)
         report.append(row)
+    with open(out / "end-clients.csv", "w", newline="", encoding="utf-8") as fh:   # one row per drawing: for the register's end client / site field
+        w = csv.writer(fh); w.writerow(["file", "client", "end_client", "found_by", "source_text"])
+        for (client, _), members in sorted(clusters.items()):
+            for m in members:
+                w.writerow([m["file"], client, m["end_client"][0] or "", m["end_client"][1], m["end_client"][2]])
     json.dump({"drawings_read": len(files), "skipped": skipped, "clusters": report}, open(out / "clusters.json", "w", encoding="utf-8"), indent=1)
     print(f"{len(files)} DXF read, {sum(r['drawings'] for r in report)} clustered, {len(skipped)} skipped, {len(report)} cluster(s)")
     for r in report:
-        print(f"  {r['cluster']:<34} {r['drawings']:>4} drawings  fields {len(r['fields'])}  " + ("DRAFT written" if r["draft"] else f"under --min-count {a.min_count}, no draft"))
+        print(f"  {r['cluster']:<34} {r['drawings']:>4} drawings  end client {r['end_client'] or ('mixed ' + str(r['end_client_counts']) if r['end_client_counts'] else '-'):<24} fields {len(r['fields'])}  " + ("DRAFT written" if r["draft"] else f"under --min-count {a.min_count}, no draft"))
     for s, why in skipped[:10]:
         print(f"  skipped {s}: {why}")
 

@@ -38,7 +38,7 @@ import ezdxf
 SHEETS = ["A0", "A1", "A2", "A3", "A4"]
 EXT2D = {".dxf", ".dwg"}
 EXT3D = {".step", ".stp", ".iges", ".igs", ".ipt", ".iam", ".sldprt", ".sldasm", ".f3d", ".py"}
-FIELDS = ["template_id", "kind", "scope", "client", "client_account_id", "client_name", "name", "version", "sheet", "orientation", "projection", "rev_owner", "purpose_default",
+FIELDS = ["template_id", "kind", "scope", "client", "end_client", "client_account_id", "client_name", "name", "version", "sheet", "orientation", "projection", "rev_owner", "purpose_default",
           "file", "sha256", "title_block_tags", "layers", "extents", "text_heights", "status", "approved_by", "approved_on",
           "added_on", "source", "notes", "as1100_deviations"]
 
@@ -135,7 +135,7 @@ def cmd_add(a):
     if dest.exists():
         sys.exit(f"{dest} already exists; nothing is overwritten")
     shutil.copyfile(a.file, dest)
-    entry = {"template_id": tid, "kind": kind, "scope": a.scope, "client": client, "client_account_id": a.client_account_id or "",
+    entry = {"template_id": tid, "kind": kind, "scope": a.scope, "client": client, "client_account_id": a.client_account_id or "", "end_client": a.end_client or "",
              "client_name": a.client_name or "", "name": a.name, "version": version, "sheet": sheet, "orientation": orient,
              "projection": a.projection if kind == "2d" else None, "units": a.units if kind == "3d" else None,
              "family_code": a.family if kind == "3d" else None,
@@ -163,7 +163,7 @@ def rows(reg, a):
 
 def cmd_list(a):
     for t in rows(load(a.root), a):
-        print(f"{t['template_id']} v{t['version']:<2} {t['kind']:<2} {t['client']:<6} {(t['sheet'] or '-'):<3} {(t['projection'] or t['units'] or ''):<6} rev:{t['rev_owner']:<7} {t['status']:<8} {t['name']}")
+        print(f"{t['template_id']} v{t['version']:<2} {t['kind']:<2} {t['client']:<6} {(t.get('end_client') or '-'):<8} {(t['sheet'] or '-'):<3} {(t['projection'] or t['units'] or ''):<6} rev:{t['rev_owner']:<7} {t['status']:<8} {t['name']}")
 
 
 def cmd_show(a):
@@ -255,7 +255,7 @@ def cmd_export_package(a):
         if a.approved_only and t["status"] not in ("APPROVED", "RETIRED"):
             continue
         recs.append({"kind": "template", "key": f"template:{t['template_id']}:v{t['version']}", "template_id": t["template_id"], "version": t["version"],
-                     "template_kind": t["kind"], "scope": t["scope"], "client_code": t["client"], "client_account_id": t["client_account_id"] or None,
+                     "template_kind": t["kind"], "scope": t["scope"], "client_code": t["client"], "end_client": t.get("end_client") or None, "client_account_id": t["client_account_id"] or None,
                      "name": t["name"], "sheet": t["sheet"], "orientation": t["orientation"], "projection": t["projection"], "units": t.get("units"),
                      "family_code": t.get("family_code"), "rev_owner": t["rev_owner"], "purpose_default": t["purpose_default"],
                      "title_block_tags": t["title_block_tags"], "layers": t["layers"], "text_heights": t["text_heights"], "file": t["file"],
@@ -283,6 +283,7 @@ def main():
     s.add_argument("--name", required=True); s.add_argument("--sheet", choices=SHEETS); s.add_argument("--orientation", choices=["landscape", "portrait"])
     s.add_argument("--kind", choices=["2d", "3d"]); s.add_argument("--scope", choices=["client", "house"], default="client")
     s.add_argument("--client-account-id", help="the client's account id in the portal, when known")
+    s.add_argument("--end-client", help="the site owner the border belongs to, if it is an end client's own border (for example BHP)")
     s.add_argument("--projection", choices=["first", "third"]); s.add_argument("--units", default="mm"); s.add_argument("--family", help="register product family code (3d)")
     s.add_argument("--rev-owner", choices=["client", "afj"], required=True)
     s.add_argument("--purpose", choices=["both", "sales", "manufacture"], default="both"); s.add_argument("--source"); s.add_argument("--notes")

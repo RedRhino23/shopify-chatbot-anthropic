@@ -56,3 +56,9 @@ The drawing register (repo `drawing-register`) already scans the legacy roots an
 
 ## Handing templates to the drawing register (14/11/2026)
 `python template_register.py --root R export-package OUT [--approved-only]` writes `templates.jsonl` and `manifest.json`, byte-identical on a rebuild, and refuses if any file is missing or changed. The register-side import is specified in `IMPORT-SPEC.md` (proposal for the register chat: requirement text, data model, a `template_import` command like `legacy_import`, tests, and questions for Ross). Nothing has been added to the register repo.
+
+## End client (14/11/2026)
+A drawing's client (the register's customer, for example AFJ) is not always who the work is for. The miner now finds the END client, the site owner, from the drawing itself:
+- a labelled field (`CLIENT:`) and the text beside or below it (AFJ-style borders), or
+- fixed title block text matching a rule in `end_clients.toml` (a border that belongs to an end client, such as a BHP border), or, if there is no rule, a guess from company-looking text that is not ours (labelled "guess").
+Each cluster gets `end_client` when at least `--threshold` of its drawings agree; otherwise `end_client_counts` shows the mix (an AFJ border used for several end clients is a field, not one end client). `MINED/end-clients.csv` lists every drawing with its end client and where it was found. `--register` passes `--end-client` to the template register when the cluster has one, and the field travels in `export-package`. Real names go in `end_clients.toml` (git-ignored); `end_clients.example.toml` shows the format. Tested on the real BHP and AFJ borders and on a synthetic mixed set; the real collection has not been run.

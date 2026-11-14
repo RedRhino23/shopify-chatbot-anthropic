@@ -1,0 +1,15 @@
+# End-client rules for template_miner.py. Copy to end_clients.toml (git-ignored) and put the real names there.
+# The drawing register's "client" is who commissions the work (for example AFJ). The END client is the site owner the drawing is for.
+# Two places an end client shows up: a labelled field (CLIENT:) whose value changes per drawing, or fixed text that belongs to the
+# border itself (a company name in the title block). Patterns are regular expressions, matched case-insensitively.
+
+# Texts that name US (the border's owner), never an end client.
+own_names = ["AUSTRALIAN FLEXIBLE JOINTS", "AFJ", "DRAFTING CENTRAL", "PTY LTD$"]
+
+# Words that mark a label whose value is the end client.
+labels = ["CLIENT", "CUSTOMER"]
+
+# Known end clients: any text matching a pattern maps to the code. Keep real names here, not in git.
+[[end_client]]
+code = "EXAMPLE-MINE"
+patterns = ["EXAMPLE MINING", "EXAMPLE MINE"]
