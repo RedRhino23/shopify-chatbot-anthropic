@@ -289,9 +289,109 @@
     {
       "id": "1101-AppB",
       "clause": "AS 1101.3-1987 Appendix B, Figs B1 to B22",
-      "says": "Design of standard symbols: dimensions in millimetres, tolerance plus or minus 1 mm or 1 degree unless stated, radii are minimum. The dimensions are in the figures (not text), so a geometry check needs them read from the printed page.",
-      "check": "manual; figures not yet read",
-      "status": "DRAFT"
+      "says": "Design of standard symbols, read from Figs B1 to B22 on 14/11/2026. Dimensions in millimetres; tolerance plus or minus 1 mm or 1 degree unless stated; radii are minimum (Notes to Figs B1 to B22).",
+      "check": "manual until a symbol geometry check is written; values below are from the figures",
+      "status": "DRAFT",
+      "params": {
+        "tolerance_mm": 1,
+        "tolerance_deg": 1,
+        "B1_reference_line": {
+          "length": "25 +/- 5",
+          "tail_height": 5,
+          "tail_angle_deg": 45,
+          "arrow_min_angle_deg": 30
+        },
+        "B2_square_butt": {
+          "height": 6,
+          "gap": 3
+        },
+        "B3_bevel_butt": {
+          "height": 5,
+          "angle_deg": 45
+        },
+        "B4_J_butt": {
+          "height": 6,
+          "offset": 3,
+          "radius": 3
+        },
+        "B5_V_butt": {
+          "height": 5,
+          "angle_deg": 45
+        },
+        "B6_fillet": {
+          "height": 5,
+          "angle_deg": 45
+        },
+        "B7_U_butt": {
+          "height": 6,
+          "offset": 3,
+          "radius": 3
+        },
+        "B8_flare_bevel_butt": {
+          "radius": 3,
+          "depth": 3,
+          "gap": 3
+        },
+        "B9_flare_V_butt": {
+          "radius": 3,
+          "depth": 3,
+          "gap": 3
+        },
+        "B10_plug_or_slot": {
+          "height": 6,
+          "width": 12
+        },
+        "B11_surfacing": {
+          "radius": 3,
+          "depth": 3
+        },
+        "B12_edge_flange": {
+          "height": 6,
+          "offset": 3,
+          "radius": 3
+        },
+        "B13_corner_flange": {
+          "height": 6,
+          "offset": 3,
+          "radius": 3
+        },
+        "B14_spot_or_projection": {
+          "diameter": 6
+        },
+        "B15_seam": {
+          "spacing": 3,
+          "length": 10
+        },
+        "B16_complete_penetration_one_side": {
+          "radius": 8,
+          "height": 3,
+          "width": 8
+        },
+        "B17_weld_all_around": {
+          "circle_diameter": 5
+        },
+        "B18_field_weld": {
+          "flag_width": 5,
+          "pole_height": 6,
+          "offset": 3
+        },
+        "B19_contour": {
+          "flush_length": 10,
+          "convex_radius": 10,
+          "convex_chord": 10
+        },
+        "B20_spacer_double_V": {
+          "height": 3
+        },
+        "B21_spacer_double_bevel": {
+          "angle_deg": 45
+        },
+        "B22_backing": {
+          "width": 10,
+          "height": 5
+        }
+      },
+      "reading_note": "Read by eye from page images (PyMuPDF render). A few labels are small; check any value you rely on against the printed page."
     },
     {
       "id": "1101-AppC",
