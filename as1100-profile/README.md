@@ -25,3 +25,9 @@ Needed from Ross
 Next (after the standard is supplied)
 - Part 2: for each UNVERIFIED item, quote the clause, set status, and write the CONFIRMED items out as the template DXF (layers, linetypes, dimstyle, text style, border and title block).
 - Part 3: `as1100_lint.py`, checking a DXF against CONFIRMED items only. Each finding cites its clause.
+
+## Weld symbol geometry check (14/11/2026)
+- `weld_symbols.py` draws weld symbols to AS 1101.3 Appendix B as DXF blocks (`add_library(doc)`): fillet, V-butt, bevel-butt, square-butt, J-butt, U-butt, plug or slot, spot, weld-all-around, field flag. It is the start of the symbol library for the step 0 template. J and U shapes are drawn by eye from the figures with the labelled sizes.
+- `weld_symbol_check.py drawing.dxf` checks weld symbol blocks against Appendix B (sizes and angles, plus or minus 1 mm or 1 degree). A simple one-symbol block is recognised by SHAPE first (Appendix B sizes differ by only 1 mm, the tolerance, so size alone cannot tell symbols apart) and then measured. A library block with many overlapped symbols gets a PRIMITIVE AUDIT: every line, circle and arc must sit within tolerance of some Appendix B size and angle. It lists insert scales too. It does not check which weld a symbol is used for, which side of the line it is on, or the perpendicular-leg-left rule.
+- `test_weld_symbols.py` is the self-test (perfect library passes; an 8 mm fillet, a 37 degree V arm and a dia 8.4 spot are caught).
+- First real result, on the AFJ border's `Weld Symbols - Metric` block (AutoCAD Mechanical library, inch-based sizes): 36 of 38 primitives are within tolerance of an Appendix B size. Two 45 degree lines of 8.98 mm are 1.02 mm from the nearest size (10) and are listed for Ross to look at; they may belong to a symbol that is not in Appendix B. Sizes are Appendix B read by eye: confirm against the printed page.
