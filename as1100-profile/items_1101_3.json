@@ -224,11 +224,81 @@
       "status": "DRAFT"
     },
     {
-      "id": "1101-6to12",
-      "clause": "AS 1101.3-1987 Sections 6 to 12, Appendices B and C",
-      "says": "Flange, plug, slot, spot, seam, brazed joints and non-destructive examination symbols, and symbol design (Appendix B).",
-      "check": "manual; not read in detail",
-      "status": "NOT READ"
+      "id": "1101-6.2",
+      "clause": "AS 1101.3-1987 cl 6.2 to 6.5",
+      "says": "Edge-flange and corner-flange weld symbols have no both-sides meaning. Where a corner-flange joint is not detailed, a break in the arrow shows which member is flanged. Flange dimensions go on the same side as the symbol; radius and height are shown left of the symbol as radius plus height, in that order; thickness is shown outward of the flange dimensions; root opening is not shown on the symbol. With extra pieces between the outer two, use the symbol for the outer two.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-7",
+      "clause": "AS 1101.3-1987 cl 7.1 to 7.6",
+      "says": "Plug welds: arrow-side holes have the symbol on the reader's side, other-side holes away from the reader. Size to the left of the symbol, countersink angle shown, pitch (centre to centre) to the right. Depth of filling is complete unless shown inside the symbol. Not used for fillet welds in holes (use cl 3.8). Flush contour symbol added for flush welds; with a finish symbol if mechanically finished.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-8",
+      "clause": "AS 1101.3-1987 cl 8.1 to 8.4",
+      "says": "Slot welds (partly or completely filled only): symbol side as for plug welds. Length, width, spacing, countersink angle, orientation and location are not shown on the welding symbol; they go on the drawing or a referenced detail. Depth of filling is complete unless shown inside the symbol.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-9",
+      "clause": "AS 1101.3-1987 cl 9.1 to 9.8",
+      "says": "Spot welds: dimensions on the same side as the symbol (or either side if astride the line). Size is the weld diameter, or strength in newtons per spot, left of the symbol. Pitch to the right. Extent dimensioned where less than the full joint. Number of welds in brackets above or below the symbol. Process reference in the tail. Projection welds use the spot symbol with the process in the tail, centred above or below the line to show the embossed member. Grouped spot welds by intersecting centrelines with arrows.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-10",
+      "clause": "AS 1101.3-1987 cl 10.1 to 10.7",
+      "says": "Seam welds: size is the weld width in millimetres, or strength in newtons per millimetre, left of the symbol. Length to the right; no length needed between abrupt changes. Pitch of intermittent seam welds to the right of the length. Length and pitch are measured along the weld axis unless a detail shows otherwise. Process in the tail.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-11",
+      "clause": "AS 1101.3-1987 cl 11.1, 11.2",
+      "says": "Brazed joints use the welding symbols. With no special preparation other than cleaning, only the arrow is used with the brazing process in the tail.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-12.1",
+      "clause": "AS 1101.3-1987 cl 12.1",
+      "says": "Non-destructive examination symbols: elements are the symbol, number of tests, tail, and specification or other reference. The basic letter designations seen include LE (leak), PE (penetrant), PRE (proof), RE (radiographic), UE (ultrasonic); the list in the file was not fully captured by my text read (other methods exist), so confirm against the printed page.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-12.2",
+      "clause": "AS 1101.3-1987 cl 12.2",
+      "says": "Examination symbols follow the same arrow-side, other-side and both-sides rules as weld symbols; a symbol with no side meaning is centred on the reference line. The arrow points at the part to be examined. Direction of radiation may be shown by a symbol at the angle wanted.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-12.3",
+      "clause": "AS 1101.3-1987 cl 12.3",
+      "says": "Extent of examination: length to the right of the symbol; dimension lines for exact location; no length for a full-length examination; percentage for partial examination; number of random examinations in brackets; examine-all-around symbol for all around a joint; plane areas enclosed by broken straight lines with a circle at each change of direction; areas of revolution use the examine-all-around symbol with dimensions.",
+      "check": "manual",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-AppB",
+      "clause": "AS 1101.3-1987 Appendix B, Figs B1 to B22",
+      "says": "Design of standard symbols: dimensions in millimetres, tolerance plus or minus 1 mm or 1 degree unless stated, radii are minimum. The dimensions are in the figures (not text), so a geometry check needs them read from the printed page.",
+      "check": "manual; figures not yet read",
+      "status": "DRAFT"
+    },
+    {
+      "id": "1101-AppC",
+      "clause": "AS 1101.3-1987 Appendix C",
+      "says": "Illustrative structural drawing showing symbol use. Not a requirement.",
+      "check": "none",
+      "status": "DRAFT"
     }
   ]
 }
