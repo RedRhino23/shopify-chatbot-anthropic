@@ -56,6 +56,16 @@ def find_border(msp):
             if a * 0.85 <= L <= a * 1.02 and b * 0.85 <= S <= b * 1.02:
                 if best is None or w * h > best[2] * best[3]:
                     best = (x0, y0, w, h, k)
+    if best:
+        return best
+    # No frame at a standard sheet size: accept an A-series shaped frame (1 : 1.414) drawn at some other scale, as AFJ borders are
+    # (model space scaled so the drawing can be done 1:1). Labelled FRAME<width>; the scale to an A1 sheet is in the report.
+    for x0, y0, x1, y1 in rects(msp):
+        w, h = x1 - x0, y1 - y0
+        L, S = max(w, h), min(w, h)
+        if S > 0 and abs(L / S - 1.4142) < 0.03 and L > 1300:
+            if best is None or w * h > best[2] * best[3]:
+                best = (x0, y0, w, h, f"FRAME{int(round(L))}")
     return best
 
 
@@ -200,7 +210,9 @@ def main():
             draft = out / "drafts" / f"{cid}.dxf"
             d.saveas(draft)
             row.update(draft=str(draft), fields=fields, shared_entities=len(shared))
-            if a.register:
+            if a.register and row["sheet"].startswith("FRAME"):
+                print(f"  {cid}: scaled frame ({row['sheet']}); not auto-registered. Add by hand with --sheet once the real sheet size is known.")
+            elif a.register:
                 if not (a.rev_owner and a.projection):
                     sys.exit("--register needs --rev-owner and --projection")
                 import subprocess
