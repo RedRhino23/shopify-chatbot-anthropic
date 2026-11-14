@@ -13,6 +13,7 @@ Point --root at the NAS folder; it gets `register.json` and `files/`.
     python template_register.py --root R retire TPL-MIM-A3-001 --version 1 --by "Ross" --why "client changed border"
     python template_register.py --root R add pump.step --kind 3d --scope client --client MIM --name "MIM pump skid" --rev-owner client --units mm
     python template_register.py --root R check                                  files present, hashes match, fields found
+    python template_register.py --root R export-package OUT                    package for the drawing register's template import
 
 Kinds: 2d (border / title block, DXF or DWG) and 3d (model template: STEP, Inventor, SolidWorks, Fusion or a parametric script).
 Scopes: client (sits under that client's account: its own folder, clients/<CODE>/) or house (Drafting Central's own, house/).
@@ -235,6 +236,45 @@ def cmd_check(a):
     sys.exit(1 if bad else 0)
 
 
+TOOL_VERSION = "tpl-1"
+
+
+def cmd_export_package(a):
+    """Write OUT/templates.jsonl and OUT/manifest.json for the drawing register's template import (see IMPORT-SPEC.md).
+    One JSON line per template version, sorted, stable keys: the same register gives a byte-identical package. File bytes are NOT in
+    the package; each record carries the file's path under the register root and its sha256, so the import can attach it from the NAS
+    and check every byte, as the legacy import does."""
+    reg = load(a.root)
+    problems = []
+    recs = []
+    for t in sorted(reg["templates"], key=lambda t: (t["client"], t["template_id"], t["version"])):
+        p = Path(a.root) / t["file"]
+        if not p.exists() or sha(p) != t["sha256"]:
+            problems.append(f"{t['template_id']} v{t['version']}: file missing or changed")
+            continue
+        if a.approved_only and t["status"] not in ("APPROVED", "RETIRED"):
+            continue
+        recs.append({"kind": "template", "key": f"template:{t['template_id']}:v{t['version']}", "template_id": t["template_id"], "version": t["version"],
+                     "template_kind": t["kind"], "scope": t["scope"], "client_code": t["client"], "client_account_id": t["client_account_id"] or None,
+                     "name": t["name"], "sheet": t["sheet"], "orientation": t["orientation"], "projection": t["projection"], "units": t.get("units"),
+                     "family_code": t.get("family_code"), "rev_owner": t["rev_owner"], "purpose_default": t["purpose_default"],
+                     "title_block_tags": t["title_block_tags"], "layers": t["layers"], "text_heights": t["text_heights"], "file": t["file"],
+                     "sha256": t["sha256"], "status": t["status"], "approved_by": t["approved_by"] or None, "approved_on": t["approved_on"] or None,
+                     "locked_on": t.get("locked_on") or None, "added_on": t["added_on"], "source": t["source"], "notes": t["notes"],
+                     "as1100_deviations": t["as1100_deviations"]})
+    if problems:
+        print("\n".join(problems), file=sys.stderr)
+        sys.exit("package not written: fix the problems above first (run `check`)")
+    out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
+    body = "".join(json.dumps(r, sort_keys=True, ensure_ascii=False) + "\n" for r in recs)
+    (out / "templates.jsonl").write_text(body, encoding="utf-8", newline="\n")
+    man = {"tool_version": TOOL_VERSION, "records": {"template": len(recs)}, "approved_only": bool(a.approved_only),
+           "package_sha256": hashlib.sha256(body.encode("utf-8")).hexdigest(),
+           "register_sha256": hashlib.sha256(json.dumps(reg, sort_keys=True).encode("utf-8")).hexdigest()}
+    (out / "manifest.json").write_text(json.dumps(man, indent=1, sort_keys=True), encoding="utf-8", newline="\n")
+    print(f"{len(recs)} template version(s) -> {out}  package sha256 {man['package_sha256'][:16]}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--root", required=True)
@@ -254,6 +294,7 @@ def main():
     s = sp.add_parser("approve"); s.add_argument("id"); s.add_argument("--by", required=True); s.add_argument("--version", type=int); s.set_defaults(f=cmd_approve)
     s = sp.add_parser("retire"); s.add_argument("id"); s.add_argument("--by", required=True); s.add_argument("--why", required=True); s.add_argument("--version", type=int); s.set_defaults(f=cmd_retire)
     s = sp.add_parser("check"); s.set_defaults(f=cmd_check)
+    s = sp.add_parser("export-package"); s.add_argument("out"); s.add_argument("--approved-only", action="store_true", help="leave DRAFT versions out"); s.set_defaults(f=cmd_export_package)
     a = ap.parse_args()
     a.f(a)
 
