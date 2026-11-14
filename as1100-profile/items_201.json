@@ -369,6 +369,227 @@
           ]
         }
       }
+    },
+    {
+      "id": "201-F2.1",
+      "clause": "AS 1100.201 Fig 2.1 (cl 2.1.2)",
+      "says": "The general tolerance note on a drawing reads three lines: general linear and angular tolerance grade (the example uses grade m), general geometry tolerance (the example shows the parallelism-style symbol with a value of 0.1), and 'unless noted otherwise'. Words in the figure are capitals.",
+      "check": "auto, advisory: a note with 'GENERAL', 'TOLERANCE' and 'UNLESS NOTED OTHERWISE' (already looked for loosely in as1100_201_checks.py)",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F2.2-2.3",
+      "clause": "AS 1100.201 Figs 2.2, 2.3 (cl 2.1.3)",
+      "says": "Geometry tolerances are shown either by tolerance frames attached to the feature (Fig 2.2: datum letters in boxes, frames with symbol, value and datum letters, M for maximum material, equispaced note) or by a tabular method (Fig 2.3: a table of feature letters, number of features, symbol, value and datum, with each feature tagged by a boxed letter on the drawing).",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F2.4",
+      "clause": "AS 1100.201 Figs 2.4, 2.5 (cl 2.1.4)",
+      "says": "Keyways are dimensioned as in the figures: parallel keys in a hub and on a shaft, tapered keyways, and woodruff keys. Keyway width and depth are dimensioned from the opposite surface.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F2.6",
+      "clause": "AS 1100.201 Fig 2.6 (cl 2.2.3)",
+      "says": "Typical application of lines in mechanical drawings: a section Y-Y of a shaft and hub with letters A to K pointing at each line use. The letters refer to line types defined in AS 1100.101 (body not on file), so the meaning of each letter is not available here.",
+      "check": "needs AS 1100.101 body",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F3.1-3.5",
+      "clause": "AS 1100.201 Figs 3.1 to 3.5, Fig 3.2 table",
+      "says": "Surface texture symbols: basic symbol is a V with the long leg at 60 degrees to the horizontal, touching the line that represents the surface. With a bar across the top (a triangle) machining is mandatory; with a circle in the V, material removal is not permitted; a horizontal extension on the long leg carries extra indications. Size follows the lettering height h: h 2.5, 3.5, 5, 7, 10, 14, 20 mm gives 1.4h of 3.5, 5, 7, 10, 14, 20, 28; 2h of 5, 7, 10, 14, 20, 28, 40; 2.8h of 7, 10, 14, 20, 28, 40, 56 (some rounded up).",
+      "check": "manual; the symbol geometry check is a later task",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026",
+      "params": {
+        "h_mm": [
+          2.5,
+          3.5,
+          5,
+          7,
+          10,
+          14,
+          20
+        ],
+        "one_point_four_h": [
+          3.5,
+          5,
+          7,
+          10,
+          14,
+          20,
+          28
+        ],
+        "two_h": [
+          5,
+          7,
+          10,
+          14,
+          20,
+          28,
+          40
+        ],
+        "two_point_eight_h": [
+          7,
+          10,
+          14,
+          20,
+          28,
+          40,
+          56
+        ],
+        "slope_deg": 60
+      }
+    },
+    {
+      "id": "201-F3.6-3.7",
+      "clause": "AS 1100.201 Figs 3.6, 3.7 (cl 3.3.2)",
+      "says": "The Ra value sits above the symbol (or above the extension line). One value is the maximum; with two values, the maximum is above the minimum. Variants: any production method, machining required, no machining.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F3.8",
+      "clause": "AS 1100.201 Fig 3.8 (cl 3.4.1)",
+      "says": "Layout of the symbol's indications: a = Ra in micrometres; b = production method, treatment or coating; c = cut-off (sampling length) in millimetres; d = lay; e = machining allowance in millimetres; f = waviness; g = other roughness values in brackets. Items b to g only when required.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026",
+      "params": {
+        "cut_off_series_mm": [
+          0.08,
+          0.25,
+          0.8,
+          2.5,
+          8
+        ],
+        "default_cut_off_mm": 0.8
+      }
+    },
+    {
+      "id": "201-T3.2",
+      "clause": "AS 1100.201 Table 3.2 (cl 3.4.4)",
+      "says": "Lay symbols: = parallel to the plane of projection, perpendicular (an upturned T), X crossed in two slant directions, M multi-directional, C approximately circular about the centre, R approximately radial. Each is written beside the symbol.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026",
+      "params": {
+        "lay_symbols": [
+          "=",
+          "perpendicular",
+          "X",
+          "M",
+          "C",
+          "R"
+        ]
+      }
+    },
+    {
+      "id": "201-F3.9-3.13",
+      "clause": "AS 1100.201 Figs 3.9 to 3.13, Table 3.3 (cl 3.4.2 to 3.4.6)",
+      "says": "Examples: production process in words above the extension (MILL); cut-off value below it (2.5); machining allowance to the left of the symbol (5); waviness as height then spacing (0.005 - 5); pre- and post-treatment shown with two symbols (one to a line, one to a Type J line for the treated surface). Table 3.3 lists preferred maximum waviness heights from 0.0005 up to 0.80 mm.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F3.14-3.15",
+      "clause": "AS 1100.201 Figs 3.14, 3.15 (cl 3.5.1)",
+      "says": "Symbols and their inscriptions are read from the bottom or the right-hand side of the drawing. The symbol points from outside the surface to the line representing it, or to a projection line, and is used once per surface, preferably on the view carrying the dimension that defines it.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F3.16",
+      "clause": "AS 1100.201 Figs 3.16, Tables 3.4, 3.5 (cl 3.5.2, 3.7)",
+      "says": "Substitute symbols: define what a bare symbol means near the view or title block ('ALL OVER', 'ALL OVER EXCEPT WHERE OTHERWISE INDICATED', or a substitute symbol equal to a symbol with a value). Table 3.4: a value with the V (removal optional), with the bar (obligatory), or with the circle (prohibited), and the two-value form. Table 3.5 gives examples of added indications: milled, cut-off 2.5, perpendicular lay, 2 mm machining allowance, Rz 0.4 in brackets, waviness 0.01 - 5.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-F5",
+      "clause": "AS 1100.201 Figs 5.1 to 5.3 (cl 5.2 to 5.4)",
+      "says": "Centre hole symbol: two lines at 60 degrees, size from the lettering height (h 3.5, 5, 7, 10, 14, 20 with line thickness 0.35, 0.5, 0.7, 1.0, 1.4, 2.0). Centre hole required on the finished part: symbol on the end of the centre-line pointing in; must not exist: the symbol is turned the other way. A designation is added: AS 1913 then the drill type, pilot diameter / countersink diameter (for example B 2.5/8).",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026",
+      "params": {
+        "h_mm": [
+          3.5,
+          5,
+          7,
+          10,
+          14,
+          20
+        ],
+        "line_mm": [
+          0.35,
+          0.5,
+          0.7,
+          1.0,
+          1.4,
+          2.0
+        ],
+        "angle_deg": 60
+      }
+    },
+    {
+      "id": "201-T7.1",
+      "clause": "AS 1100.201 Table 7.1 and Figs 7.1 to 7.4",
+      "says": "Conventional representation of springs: leaf (semi-elliptic, with eyelets, with centre band), helical compression (cylindrical round or square section, conical), tension, torsion, cup and spiral springs, each shown as a sectioned view or a diagrammatic zigzag view.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-T9.1",
+      "clause": "AS 1100.201 Table 9.1, Figs 9.5, 9.6",
+      "says": "Splines (straight-sided and involute): shaft, hub and spline joint each drawn as in the table; root and tooth lines Type B in the end view, root surface Type A in the axial section, pitch surface Type G for involute. Tool runout may be an oblique line or a radius; one or two teeth may be drawn with a Type A line to show tooth position.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-T10.1",
+      "clause": "AS 1100.201 Table 10.1, Fig 10.1",
+      "says": "Rolling bearings: Method A a simple rectangle with a plus sign (general); Method B shows the force type: radial transmission (a rectangle with a short horizontal stroke or a dashed element), axial (a rectangle with a vertical stroke), angular (a rectangle with a diagonal stroke). All Type A lines. For the exact contour, draw the true cross-section with an upright cross in the centre.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-T11",
+      "clause": "AS 1100.201 Figs 11.1 to 11.8, Tables 11.1 to 11.4",
+      "says": "Seals: general representation is a square with a free-standing diagonal cross; an arrowhead on the cross shows the sealing direction. Detailed representation builds from elements (a straight line for the static element, a diagonal line for the dynamic lip, short strokes for dust lips and wipers, T over U for contactless seals); Table 11.2 matches seals subject to rotation or translation; Table 11.4 shows labyrinth seals as a T inside a U. These are shaft and rod seals, not expansion joint seals.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-T12.1",
+      "clause": "AS 1100.201 Table 12.1 (cl 12.1)",
+      "says": "Knurling: straight knurling is shown by a few short lines parallel to the axis; diamond knurling by two sets of lines at 30 degrees to the axis, whatever the knurl angle. Type B lines.",
+      "check": "manual",
+      "status": "DRAFT",
+      "source": "figure or table, read from page images 14/11/2026"
+    },
+    {
+      "id": "201-figs-unread",
+      "clause": "AS 1100.201 figures not yet looked at",
+      "says": "Section 8 (gears: Figs 8.x, Tables 8.1 to 8.x), the pipeline figures 6.1 to 6.24, Appendix A Figs A1 and A2, and Appendix B Figs B1 to B4 and Tables B1 to B3.",
+      "check": "not read",
+      "status": "NOT READ"
     }
   ]
 }
